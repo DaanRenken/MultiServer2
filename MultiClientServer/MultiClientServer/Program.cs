@@ -42,10 +42,7 @@ namespace MultiClientServer
                 }
             }
             */
-
-            Console.WriteLine("Typ [verbind poortnummer] om verbinding te maken, bijvoorbeeld: verbind 1100");
-            Console.WriteLine("Typ [poortnummer bericht] om een bericht te sturen, bijvoorbeeld: 1100 hoi hoi");
-            //Buren.Add(1102, new Connection(1101));
+            
             while (true)
             {
                 string input = Console.ReadLine();
@@ -77,7 +74,7 @@ namespace MultiClientServer
                         }
                         else
                         {
-                            Console.WriteLine("Hier is al verbinding naar!");
+                            Console.WriteLine("Poort onbekent!");
                         }
                     }
                     else if (input.StartsWith("R"))
@@ -91,7 +88,7 @@ namespace MultiClientServer
                         int poort = int.Parse(delen[0]);
                         if (!Buren.ContainsKey(poort))
                         {
-                            Console.WriteLine("Hier is al verbinding naar!");
+                            Console.WriteLine("Poort onbekent!");
 
                         }
                         else
@@ -111,7 +108,7 @@ namespace MultiClientServer
         {
             for (int i = 0; i < Connecties.Count; i++)
             {
-                Console.WriteLine(Connecties[i] + " " + Buren[Connecties[i]].ping);
+                Console.WriteLine(Connecties[i] + " " + Buren[Connecties[i]].ping + " print");
             }
         }
     }
