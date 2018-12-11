@@ -46,7 +46,7 @@ namespace MultiClientServer
             while (true)
             {
                 string input = Console.ReadLine();
-                //try
+                try
                 {
                     if (input.StartsWith("verbind"))
                     {
@@ -61,8 +61,9 @@ namespace MultiClientServer
                             Connecties.Add(poort);
                             connection.eigenadres = MijnPoort;
                             connection.doeladres = poort;
-                            connection.Ping(poort);
                             connection.favopoort = poort;
+                            connection.Ping(poort);
+                            connection.senddictionary();
                         }
                     }
                     else if (input.StartsWith("ping"))
@@ -97,10 +98,10 @@ namespace MultiClientServer
                         }
                     }
                 }
-                //catch
-                //{
-                //    Console.WriteLine("foute input probeer het nog eens");
-                //}
+                catch
+                {
+                    Console.WriteLine("foute input probeer het nog eens");
+                }
             }
 
         }
@@ -108,7 +109,7 @@ namespace MultiClientServer
         {
             for (int i = 0; i < Connecties.Count; i++)
             {
-                Console.WriteLine(Connecties[i] + " " + Buren[Connecties[i]].ping + " print");
+                Console.WriteLine(Connecties[i] + " " + Buren[Connecties[i]].ping + " " + Buren[Connecties[i]].favopoort + " print");
             }
         }
     }

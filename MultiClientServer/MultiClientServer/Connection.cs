@@ -54,7 +54,6 @@ namespace MultiClientServer
         // Deze loop leest wat er binnenkomt en print dit
         public void ReaderThread()
         {
-            //senddictionary();
             try
             {
                 while (true)
@@ -64,7 +63,7 @@ namespace MultiClientServer
                     if (message.StartsWith(eigenadres.ToString()))
                     {
 
-                        message = message.Substring(message.IndexOf(" ")+1);
+                        message = message.Substring(message.IndexOf(" ") + 1);
                         if (message.StartsWith("ping ping"))
                         {
                             Program.Buren[Int32.Parse(message.Split()[2])].Write.WriteLine(message.Split()[2] + " ping pong");
@@ -87,7 +86,10 @@ namespace MultiClientServer
                     }
                     else
                     {
-                        Program.Buren[Int32.Parse(message.Split()[0])].Write.WriteLine(message);
+                        lock (o)
+                        {
+                            Program.Buren[Int32.Parse(message.Split()[0])].Write.WriteLine(message);
+                        }
                     }
                 }
             }
@@ -95,20 +97,19 @@ namespace MultiClientServer
         }
         void UpdateDictionary(string input)
         {
-            if (!Program.Buren.ContainsKey(Int32.Parse(input.Split()[0])) && Int32.Parse(input.Split()[0]) != eigenadres)
+            lock (o)
             {
-                Program.Buren.Add(Int32.Parse(input.Split()[0]), new Connection(this.Read,this.Write));
-                Program.Connecties.Add(Int32.Parse(input.Split()[0]));
+                if (!Program.Buren.ContainsKey(Int32.Parse(input.Split()[0])) && Int32.Parse(input.Split()[0]) != eigenadres) //
+                {
+                    Connection connection = new Connection(this.Read, this.Write);
+                    Program.Buren.Add(Int32.Parse(input.Split()[0]), connection);
+                    Program.Connecties.Add(Int32.Parse(input.Split()[0]));
+                    connection.Read = this.Read;
+                    connection.Write = this.Write;
+                    connection.favopoort = this.favopoort;
+                    connection.ping = this.ping;
+                }
             }
-            Program.Buren.TryGetValue(Int32.Parse(input.Split()[0]), out Connection connection);
-            if (connection.ping > this.ping)
-            {
-                connection.Read = this.Read;
-                connection.Write = this.Write;
-                connection.favopoort = this.favopoort;
-                connection.ping = this.ping;
-            }
-            
 
         }
         public void Ping(int poort)
@@ -138,7 +139,7 @@ namespace MultiClientServer
         {
             for (int i = 0; i < Program.Connecties.Count; i++)
             {
-                if (Program.Connecties[i] != eigenadres)
+                //if (Program.Connecties[i] != eigenadres)
                 {
                     string output = doeladres + " Dictionary " + Program.Connecties[i] + " " + Program.Buren[Program.Connecties[i]].ping;
                     Console.WriteLine(output);
