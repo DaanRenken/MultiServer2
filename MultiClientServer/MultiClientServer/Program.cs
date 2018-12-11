@@ -64,7 +64,7 @@ namespace MultiClientServer
                             Connecties.Add(poort);
                             connection.eigenadres = MijnPoort;
                             connection.doeladres = poort;
-                            connection.ping = connection.Ping(poort);
+                            connection.Ping(poort);
                             connection.favopoort = poort;
                         }
                     }
@@ -73,7 +73,7 @@ namespace MultiClientServer
                         int poort = int.Parse(input.Split()[1]);
                         if (Buren.ContainsKey(poort))
                         {
-                            Console.WriteLine((Buren[poort].Ping(poort)));
+                            Buren[poort].Ping(poort);
                         }
                         else
                         {

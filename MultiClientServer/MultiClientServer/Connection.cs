@@ -84,7 +84,7 @@ namespace MultiClientServer
                     }
                     else
                     {
-                        //Program.Buren[Int32.Parse(message.Split()[0])].Write.WriteLine(message);
+                        Program.Buren[Int32.Parse(message.Split()[0])].Write.WriteLine(message);
                     }
                 }
             }
@@ -94,7 +94,7 @@ namespace MultiClientServer
         {
             if (!Program.Buren.ContainsKey(Int32.Parse(input.Split()[0])))
             {
-                new Connection(Int32.Parse(input.Split()[0]));
+                Program.Buren.Add(Int32.Parse(input.Split()[0]), new Connection(this.Read,this.Write));
                 Program.Connecties.Add(Int32.Parse(input.Split()[0]));
             }
             Program.Buren.TryGetValue(Int32.Parse(input.Split()[0]), out Connection connection);
@@ -107,17 +107,22 @@ namespace MultiClientServer
             
 
         }
-        public int Ping(int poort)
+        public void Ping(int poort)
         {
-            stop = true;
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
-            Program.Buren[poort].Write.WriteLine(doeladres+ " ping ping " + Program.MijnPoort);
-            while (Stop())
+            int count = 0;
+            for (int i = 0; i < 5; i++)
             {
+                stop = true;
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
+                Program.Buren[poort].Write.WriteLine(doeladres + " ping ping " + Program.MijnPoort);
+                while (Stop())
+                {
+                }
+                stopwatch.Stop();
+                count += (int)stopwatch.ElapsedMilliseconds;
             }
-            stopwatch.Stop();
-            return (int)stopwatch.ElapsedMilliseconds;
+            ping = count/5;
         }
         bool Stop()
         {

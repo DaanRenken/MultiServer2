@@ -40,7 +40,7 @@ namespace MultiClientServer
                 Program.Buren.Add(zijnPoort,connection);
                 connection.eigenadres = Program.MijnPoort;
                 connection.doeladres = zijnPoort;
-                connection.ping = connection.Ping(zijnPoort);
+                connection.Ping(zijnPoort);
                 connection.favopoort = zijnPoort;
                 Program.Connecties.Add(zijnPoort);
 
