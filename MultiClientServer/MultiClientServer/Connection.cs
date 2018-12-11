@@ -109,7 +109,7 @@ namespace MultiClientServer
                     connection.favopoort = this.favopoort;
                     connection.eigenadres = this.eigenadres;
                     connection.doeladres = Int32.Parse(input.Split()[0]);
-                    connection.Ping(connection.doeladres);
+                    //connection.Ping(connection.doeladres);
                 }
             }
 
