@@ -38,8 +38,12 @@ namespace MultiClientServer
                 // Zet de nieuwe verbinding in de verbindingslijst
                 Connection connection = new Connection(clientIn, clientOut);
                 Program.Buren.Add(zijnPoort,connection);
+                connection.eigenadres = Program.MijnPoort;
+                connection.doeladres = zijnPoort;
                 connection.ping = connection.Ping(zijnPoort);
+                connection.favopoort = zijnPoort;
                 Program.Connecties.Add(zijnPoort);
+
             }
         }
     }

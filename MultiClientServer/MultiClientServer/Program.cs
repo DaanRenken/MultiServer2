@@ -45,7 +45,7 @@ namespace MultiClientServer
 
             Console.WriteLine("Typ [verbind poortnummer] om verbinding te maken, bijvoorbeeld: verbind 1100");
             Console.WriteLine("Typ [poortnummer bericht] om een bericht te sturen, bijvoorbeeld: 1100 hoi hoi");
-
+            //Buren.Add(1102, new Connection(1101));
             while (true)
             {
                 string input = Console.ReadLine();
@@ -62,8 +62,10 @@ namespace MultiClientServer
                             Connection connection = new Connection(poort);
                             Buren.Add(poort, connection);
                             Connecties.Add(poort);
+                            connection.eigenadres = MijnPoort;
+                            connection.doeladres = poort;
                             connection.ping = connection.Ping(poort);
-
+                            connection.favopoort = poort;
                         }
                     }
                     else if (input.StartsWith("ping"))
@@ -94,7 +96,7 @@ namespace MultiClientServer
                         }
                         else
                         {
-                            Buren[poort].Write.WriteLine(MijnPoort + ": " + delen[1]);
+                            Buren[poort].Write.WriteLine(input);
                         }
                     }
                 }

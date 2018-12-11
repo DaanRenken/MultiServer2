@@ -15,7 +15,7 @@ namespace MultiClientServer
         public StreamReader Read;
         public StreamWriter Write;
         public List<Thread> threads = new List<Thread>();
-        public int ping;
+        public int ping, eigenadres, doeladres, favopoort;
         private bool stop;
         object o = new object();
         // Connection heeft 2 constructoren: deze constructor wordt gebruikt als wij CLIENT worden bij een andere SERVER
@@ -51,33 +51,68 @@ namespace MultiClientServer
         // Deze loop leest wat er binnenkomt en print dit
         public void ReaderThread()
         {
+            //senddictionary();
             try
             {
                 while (true)
                 {
                     string message = Read.ReadLine();
                     Console.WriteLine(message);
-                    if (message.StartsWith("ping ping"))
+                    if (message.StartsWith(eigenadres.ToString()))
                     {
-                        Program.Buren[Int32.Parse(message.Split()[2])].Write.WriteLine("ping pong");
-                    }
-                    else if (message.StartsWith("ping pong"))
-                    {
-                        lock (o)
+
+                        message = message.Substring(message.IndexOf(" ")+1);
+                        if (message.StartsWith("ping ping"))
                         {
-                            stop = false;
+                            Program.Buren[Int32.Parse(message.Split()[2])].Write.WriteLine(doeladres + " ping pong");
                         }
+                        else if (message.StartsWith("ping pong"))
+                        {
+                            lock (o)
+                            {
+                                stop = false;
+                            }
+                        }
+                        else if (message.StartsWith("GetDictionary"))
+                        {
+                            senddictionary();
+                        }
+                        else if (message.StartsWith("Dictionary"))
+                        {
+                            UpdateDictionary(message.Substring(message.IndexOf(" ") + 1));
+                        }
+                    }
+                    else
+                    {
+                        //Program.Buren[Int32.Parse(message.Split()[0])].Write.WriteLine(message);
                     }
                 }
             }
             catch { } // Verbinding is kennelijk verbroken
+        }
+        void UpdateDictionary(string input)
+        {
+            if (!Program.Buren.ContainsKey(Int32.Parse(input.Split()[0])))
+            {
+                new Connection(Int32.Parse(input.Split()[0]));
+                Program.Connecties.Add(Int32.Parse(input.Split()[0]));
+            }
+            Program.Buren.TryGetValue(Int32.Parse(input.Split()[0]), out Connection connection);
+            if (connection.ping > this.ping)
+            {
+                connection.Read = this.Read;
+                connection.Write = this.Write;
+                connection.favopoort = this.favopoort;
+            }
+            
+
         }
         public int Ping(int poort)
         {
             stop = true;
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            Program.Buren[poort].Write.WriteLine("ping ping " + Program.MijnPoort);
+            Program.Buren[poort].Write.WriteLine(doeladres+ " ping ping " + Program.MijnPoort);
             while (Stop())
             {
             }
@@ -94,6 +129,15 @@ namespace MultiClientServer
         public void print()
         {
             Console.WriteLine(Program.Connecties.ToString());
+        }
+        public void senddictionary()
+        {
+            for (int i = 0; i < Program.Connecties.Count; i++)
+            {
+                string output = doeladres + " Dictionary " + Program.Connecties[i] + " " + Program.Buren[Program.Connecties[i]].ping;
+                Console.WriteLine(output);
+                Program.Buren[doeladres].Write.WriteLine(output);
+            }
         }
     }
 }
