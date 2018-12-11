@@ -15,7 +15,8 @@ namespace MultiClientServer
         public StreamReader Read;
         public StreamWriter Write;
         public List<Thread> threads = new List<Thread>();
-        private bool ping;
+        public int ping;
+        private bool stop;
         object o = new object();
         // Connection heeft 2 constructoren: deze constructor wordt gebruikt als wij CLIENT worden bij een andere SERVER
         public Connection(int port)
@@ -27,7 +28,7 @@ namespace MultiClientServer
 
             // De server kan niet zien van welke poort wij client zijn, dit moeten we apart laten weten
             Write.WriteLine("Poort: " + Program.MijnPoort);
-
+            
             // Start het reader-loopje
             Thread thread = new Thread(ReaderThread);
             threads.Add(thread);
@@ -64,30 +65,30 @@ namespace MultiClientServer
                     {
                         lock (o)
                         {
-                            ping = false;
+                            stop = false;
                         }
                     }
                 }
             }
             catch { } // Verbinding is kennelijk verbroken
         }
-        public int Ping(int port)
+        public int Ping(int poort)
         {
-            ping = true;
+            stop = true;
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-
-            while (stop())
+            Program.Buren[poort].Write.WriteLine("ping ping " + Program.MijnPoort);
+            while (Stop())
             {
             }
             stopwatch.Stop();
             return (int)stopwatch.ElapsedMilliseconds;
         }
-        bool stop()
+        bool Stop()
         {
             lock (o)
             {
-                return ping;
+                return stop;
             }
         }
         public void print()

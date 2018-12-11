@@ -23,50 +23,67 @@ namespace MultiClientServer
             while (true)
             {
                 string input = Console.ReadLine();
-                if (input.StartsWith("verbind"))
+                //try
                 {
-                    int poort = int.Parse(input.Split()[1]);
-                    if (Buren.ContainsKey(poort))
-                        Console.WriteLine("Hier is al verbinding naar!");
+                    if (input.StartsWith("verbind"))
+                    {
+                        int poort = int.Parse(input.Split()[1]);
+                        if (Buren.ContainsKey(poort))
+                            Console.WriteLine("Hier is al verbinding naar!");
+                        else
+                        {
+                            // Leg verbinding aan (als client)
+                            Connection connection = new Connection(poort);
+                            Buren.Add(poort, connection);
+                            Connecties.Add(poort);
+                            connection.ping = connection.Ping(poort);
+                            
+                        }
+                    }
+                    else if (input.StartsWith("ping"))
+                    {
+                        int poort = int.Parse(input.Split()[1]);
+                        if (Buren.ContainsKey(poort))
+                        {
+                            Console.WriteLine((Buren[poort].Ping(poort)));
+                        }
+                        else
+                        {
+                            Console.WriteLine("Hier is al verbinding naar!");
+                        }
+                    }
+                    else if (input.StartsWith("R"))
+                    {
+                        print();
+                    }
                     else
                     {
-                        // Leg verbinding aan (als client)
-                        Buren.Add(poort, new Connection(poort));
-                        Connecties.Add(poort);
-                    }
-                }
-                else if (input.StartsWith("ping"))
-                {
-                    int poort = int.Parse(input.Split()[1]);
-                    if (Buren.ContainsKey(poort))
-                    {
-                        Buren[poort].Write.WriteLine("ping ping " + MijnPoort);
-                        Console.WriteLine((Buren[poort].Ping(poort)));
-                    }
-                    else
-                    {
-                        Console.WriteLine("Hier is al verbinding naar!");
-                    }
-                }
-                else if (input.StartsWith("R"))
-                {
-                    Buren[MijnPoort].print();
-                }
-                else
-                {
-                    // Stuur berichtje
-                    string[] delen = input.Split(new char[] { ' ' }, 2);
-                    int poort = int.Parse(delen[0]);
-                    if (!Buren.ContainsKey(poort))
-                    {
-                        Console.WriteLine("Hier is al verbinding naar!");
+                        // Stuur berichtje
+                        string[] delen = input.Split(new char[] { ' ' }, 2);
+                        int poort = int.Parse(delen[0]);
+                        if (!Buren.ContainsKey(poort))
+                        {
+                            Console.WriteLine("Hier is al verbinding naar!");
 
-                    }
-                    else
-                    {
-                        Buren[poort].Write.WriteLine(MijnPoort + ": " + delen[1]);
+                        }
+                        else
+                        {
+                            Buren[poort].Write.WriteLine(MijnPoort + ": " + delen[1]);
+                        }
                     }
                 }
+                //catch
+                //{
+                //    Console.WriteLine("foute input probeer het nog eens");
+                //}
+            }
+            
+        }
+        static void print()
+        {
+            for (int i = 0; i < Connecties.Count; i++)
+            {
+               Console.WriteLine(Connecties[i] + " " + Buren[Connecties[i]].ping);
             }
         }
     }
