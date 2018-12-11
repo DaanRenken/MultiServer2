@@ -14,8 +14,9 @@ namespace MultiClientServer
     {
         public StreamReader Read;
         public StreamWriter Write;
+        public List<Thread> threads = new List<Thread>();
         private bool ping;
-        object o;
+        object o = new object();
         // Connection heeft 2 constructoren: deze constructor wordt gebruikt als wij CLIENT worden bij een andere SERVER
         public Connection(int port)
         {
@@ -28,7 +29,9 @@ namespace MultiClientServer
             Write.WriteLine("Poort: " + Program.MijnPoort);
 
             // Start het reader-loopje
-            new Thread(ReaderThread).Start();
+            Thread thread = new Thread(ReaderThread);
+            threads.Add(thread);
+            thread.Start();
         }
 
         // Deze constructor wordt gebruikt als wij SERVER zijn en een CLIENT maakt met ons verbinding
@@ -37,7 +40,9 @@ namespace MultiClientServer
             Read = read; Write = write;
 
             // Start het reader-loopje
-            new Thread(ReaderThread).Start();
+            Thread thread = new Thread(ReaderThread);
+            threads.Add(thread);
+            thread.Start();         
         }
 
         // LET OP: Nadat er verbinding is gelegd, kun je vergeten wie er client/server is (en dat kun je aan het Connection-object dus ook niet zien!)
@@ -57,7 +62,10 @@ namespace MultiClientServer
                     }
                     else if (message.StartsWith("ping pong"))
                     {
-                        ping = false;
+                        lock (o)
+                        {
+                            ping = false;
+                        }
                     }
                 }
             }
@@ -68,12 +76,23 @@ namespace MultiClientServer
             ping = true;
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            while (ping)
+
+            while (stop())
             {
-                int x = 2;
             }
             stopwatch.Stop();
             return (int)stopwatch.ElapsedMilliseconds;
+        }
+        bool stop()
+        {
+            lock (o)
+            {
+                return ping;
+            }
+        }
+        public void print()
+        {
+            Console.WriteLine(Program.Connecties.ToString());
         }
     }
 }

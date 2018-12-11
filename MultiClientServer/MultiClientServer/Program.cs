@@ -10,16 +10,16 @@ namespace MultiClientServer
         static public int MijnPoort;
 
         static public Dictionary<int, Connection> Buren = new Dictionary<int, Connection>();
-
+        static public List<int> Connecties = new List<int>();
         static void Main(string[] args)
         {
             Console.Write("Op welke poort ben ik server? ");
             MijnPoort = int.Parse(Console.ReadLine());
             new Server(MijnPoort);
-
+            Console.Title = MijnPoort.ToString();
             Console.WriteLine("Typ [verbind poortnummer] om verbinding te maken, bijvoorbeeld: verbind 1100");
             Console.WriteLine("Typ [poortnummer bericht] om een bericht te sturen, bijvoorbeeld: 1100 hoi hoi");
-
+           
             while (true)
             {
                 string input = Console.ReadLine();
@@ -32,6 +32,7 @@ namespace MultiClientServer
                     {
                         // Leg verbinding aan (als client)
                         Buren.Add(poort, new Connection(poort));
+                        Connecties.Add(poort);
                     }
                 }
                 else if (input.StartsWith("ping"))
@@ -47,6 +48,10 @@ namespace MultiClientServer
                         Console.WriteLine("Hier is al verbinding naar!");
                     }
                 }
+                else if (input.StartsWith("R"))
+                {
+                    Buren[MijnPoort].print();
+                }
                 else
                 {
                     // Stuur berichtje
@@ -58,7 +63,9 @@ namespace MultiClientServer
 
                     }
                     else
+                    {
                         Buren[poort].Write.WriteLine(MijnPoort + ": " + delen[1]);
+                    }
                 }
             }
         }
