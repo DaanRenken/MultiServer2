@@ -66,13 +66,13 @@ namespace MultiClientServer
                         message = message.Substring(message.IndexOf(" ") + 1);
                         if (message.StartsWith("ping ping"))
                         {
-                            Program.Buren[Int32.Parse(message.Split()[2])].Write.WriteLine(message.Split()[2] + " ping pong");
+                            Program.Buren[Int32.Parse(message.Split()[2])].Write.WriteLine(message.Split()[2] + " ping pong " + eigenadres);
                         }
                         else if (message.StartsWith("ping pong"))
                         {
                             lock (o)
                             {
-                                stop = false;
+                                Program.Buren[Int32.Parse(message.Split()[2])].stop = false;
                             }
                         }
                         else if (message.StartsWith("GetDictionary"))
@@ -107,7 +107,9 @@ namespace MultiClientServer
                     connection.Read = this.Read;
                     connection.Write = this.Write;
                     connection.favopoort = this.favopoort;
-                    connection.ping = this.ping;
+                    connection.eigenadres = this.eigenadres;
+                    connection.doeladres = Int32.Parse(input.Split()[0]);
+                    connection.Ping(connection.doeladres);
                 }
             }
 
@@ -118,11 +120,14 @@ namespace MultiClientServer
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
             Program.Buren[poort].Write.WriteLine(poort + " ping ping " + Program.MijnPoort);
-            while (Stop())
+            int i = 0;
+            while (Stop() || i > 5000)
             {
+                i++;
             }
             stopwatch.Stop();            
             ping = (int) stopwatch.ElapsedMilliseconds;
+            Console.WriteLine("ping is " + ping);
         }
         bool Stop()
         {

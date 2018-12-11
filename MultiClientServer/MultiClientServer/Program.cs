@@ -109,7 +109,7 @@ namespace MultiClientServer
         {
             for (int i = 0; i < Connecties.Count; i++)
             {
-                Console.WriteLine(Connecties[i] + " " + Buren[Connecties[i]].ping + " " + Buren[Connecties[i]].favopoort + " print");
+                Console.WriteLine(Connecties[i] + " " + Buren[Connecties[i]].ping + " " + Buren[Connecties[i]].eigenadres + " " + Buren[Connecties[i]].doeladres+ " " +Buren[Connecties[i]].favopoort + " print");
             }
         }
     }
