@@ -18,6 +18,7 @@ namespace MultiClientServer
         public int ping, eigenadres, doeladres, favopoort;
         private bool stop;
         object o = new object();
+        private System.Timers.Timer timer;
         // Connection heeft 2 constructoren: deze constructor wordt gebruikt als wij CLIENT worden bij een andere SERVER
         public Connection(int poort)
         {
@@ -36,7 +37,6 @@ namespace MultiClientServer
             Thread thread = new Thread(ReaderThread);
             threads.Add(thread);
             thread.Start();
-
         }
 
         // Deze constructor wordt gebruikt als wij SERVER zijn en een CLIENT maakt met ons verbinding
@@ -46,14 +46,23 @@ namespace MultiClientServer
             // Start het reader-loopje
             Thread thread = new Thread(ReaderThread);
             threads.Add(thread);
-            thread.Start();         
+            thread.Start();     
         }
 
         // LET OP: Nadat er verbinding is gelegd, kun je vergeten wie er client/server is (en dat kun je aan het Connection-object dus ook niet zien!)
+        private void Timer(object o, EventArgs e)
+        {
+            Ping(doeladres);
+        }
+
 
         // Deze loop leest wat er binnenkomt en print dit
         public void ReaderThread()
         {
+            timer = new System.Timers.Timer();
+            timer.Elapsed += new System.Timers.ElapsedEventHandler(Timer);
+            timer.Interval = 60000;
+            timer.Enabled = true;
             try
             {
                 while (true)
@@ -146,11 +155,11 @@ namespace MultiClientServer
             if (!Stop())
             {
                 ping = (int)stopwatch.ElapsedMilliseconds;
-                Console.WriteLine("ping is " + ping);
+                //Console.WriteLine(doeladres + " ping is " + ping);
             }
             else
             {
-                Console.WriteLine(poort + " Ping timed out");
+                Console.WriteLine(poort + " ping timed out");
             }
 
         }
