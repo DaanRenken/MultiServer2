@@ -36,15 +36,16 @@ namespace MultiClientServer
                 Console.WriteLine("Client maakt verbinding: " + zijnPoort);
 
                 // Zet de nieuwe verbinding in de verbindingslijst
-                Connection connection = new Connection(clientIn, clientOut);
-                Program.Buren.Add(zijnPoort,connection);
-                connection.eigenadres = Program.MijnPoort;
-                connection.doeladres = zijnPoort;
-                connection.favopoort = zijnPoort;
-                Program.Connecties.Add(zijnPoort);
-                connection.Ping(zijnPoort);
-                connection.SendDictionary();
-                connection.SendDictionary(connection.GetNeigbours(), zijnPoort);
+                Connection connection = new Connection(clientIn, clientOut, zijnPoort);
+                Program.AddConnection(connection);
+                //Program.Buren.Add(zijnPoort,connection);
+                //Program.Connecties.Add(zijnPoort);
+                //connection.eigenadres = Program.MijnPoort;
+                //connection.doeladres = zijnPoort;
+                //connection.favopoort = zijnPoort;
+                //connection.Ping(zijnPoort);
+                //connection.SendDictionary();
+                //connection.SendDictionary(connection.GetNeigbours(), zijnPoort);
             }
         }
     }

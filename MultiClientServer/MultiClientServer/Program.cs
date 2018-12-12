@@ -48,54 +48,43 @@ namespace MultiClientServer
                 string input = Console.ReadLine();
                 try
                 {
-                    if (input.StartsWith("verbind"))
+                    switch (input.Split()[0])
                     {
-                        int poort = int.Parse(input.Split()[1]);
-                        if (Buren.ContainsKey(poort))
-                            Console.WriteLine("Hier is al verbinding naar!");
-                        else
-                        {
-                            // Leg verbinding aan (als client)
-                            Connection connection = new Connection(poort);
-                            Buren.Add(poort, connection);
-                            Connecties.Add(poort);
-                            connection.eigenadres = MijnPoort;
-                            connection.doeladres = poort;
-                            connection.favopoort = poort;
-                            connection.Ping(poort);
-                            connection.SendDictionary();
-                            connection.SendDictionary(connection.GetNeigbours(), poort);
-                        }
+                        case "R":
+                            {
+                                Print();
+                                break;
+                            }
+                        case "B":
+                            {
+                                input = input.Substring(input.IndexOf(" ") + 1);
+                                Buren[Int32.Parse(input.Split()[0])].SendMessage(input.Substring(input.IndexOf(" ") + 1));
+                                break;
+                            }
+                        case "C":
+                            {
+                                int poort = int.Parse(input.Split()[1]);
+                                Connection connection = new Connection(poort);
+                                AddConnection(connection);
+                                break;
+                            }
+                        case "D":
+                            {
+                                break;
+                            }
                     }
-                    else if (input.StartsWith("ping"))
                     {
-                        int poort = int.Parse(input.Split()[1]);
-                        if (Buren.ContainsKey(poort))
+                        if (input.StartsWith("ping"))
                         {
-                            Buren[poort].Ping(poort);
-                        }
-                        else
-                        {
-                            Console.WriteLine("Poort onbekent!");
-                        }
-                    }
-                    else if (input.StartsWith("R"))
-                    {
-                        print();
-                    }
-                    else
-                    {
-                        // Stuur berichtje
-                        string[] delen = input.Split(new char[] { ' ' }, 2);
-                        int poort = int.Parse(delen[0]);
-                        if (!Buren.ContainsKey(poort))
-                        {
-                            Console.WriteLine("Poort onbekent!");
-
-                        }
-                        else
-                        {
-                            Buren[poort].SendMessage(input);
+                            int poort = int.Parse(input.Split()[1]);
+                            if (Buren.ContainsKey(poort))
+                            {
+                                Buren[poort].Ping(poort);
+                            }
+                            else
+                            {
+                                Console.WriteLine("Poort onbekent!");
+                            }
                         }
                     }
                 }
@@ -106,13 +95,32 @@ namespace MultiClientServer
             }
 
         }
-        static void print()
+        static void Print()
         {
+            Console.WriteLine(MijnPoort + " 0 Local");
             for (int i = 0; i < Connecties.Count; i++)
             {
-                Console.WriteLine(Connecties[i] + " " + Buren[Connecties[i]].ping + " " + Buren[Connecties[i]].eigenadres + " " + Buren[Connecties[i]].doeladres+ " " +Buren[Connecties[i]].favopoort + " print");
+                Console.WriteLine(Connecties[i] + " " + Buren[Connecties[i]].ping + " " +Buren[Connecties[i]].favopoort);
             }
         }
+        public  static void AddConnection(Connection connection)
+        {
+            int poort = connection.doeladres;
+            if (Buren.ContainsKey(poort))
+                Console.WriteLine("Hier is al verbinding naar!");
+            else if (poort != MijnPoort)
+            {
+                // Leg verbinding aan (als client)
 
+                Buren.Add(poort, connection);
+                Connecties.Add(poort);
+                //connection.eigenadres = MijnPoort;
+                //connection.doeladres = poort;
+                //connection.favopoort = poort;
+                connection.Ping(poort);
+                connection.SendDictionary();
+                connection.SendDictionary(connection.GetNeigbours(), poort);
+            }
+        }
     }
 }

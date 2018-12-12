@@ -33,6 +33,7 @@ namespace MultiClientServer
             this.favopoort = poort;
 
             Write.WriteLine("Poort: " + eigenadres);
+
             // Start het reader-loopje
             Thread thread = new Thread(ReaderThread);
             threads.Add(thread);
@@ -40,10 +41,16 @@ namespace MultiClientServer
         }
 
         // Deze constructor wordt gebruikt als wij SERVER zijn en een CLIENT maakt met ons verbinding
-        public Connection(StreamReader read, StreamWriter write)
+        public Connection(StreamReader read, StreamWriter write, int poort)
         {
             Read = read; Write = write;
+
+            this.eigenadres = Program.MijnPoort;
+            this.doeladres = poort;
+            this.favopoort = poort;
+
             // Start het reader-loopje
+
             Thread thread = new Thread(ReaderThread);
             threads.Add(thread);
             thread.Start();     
@@ -62,7 +69,7 @@ namespace MultiClientServer
             timer = new System.Timers.Timer();
             timer.Elapsed += new System.Timers.ElapsedEventHandler(Timer);
             timer.Interval = 60000;
-            timer.Enabled = true;
+            //timer.Enabled = true;
             try
             {
                 while (true)
@@ -101,6 +108,9 @@ namespace MultiClientServer
                     {
                         lock (o)
                         {
+                            int voor = Int32.Parse(message.Split()[0]);
+                            int naar = Program.Buren[voor].favopoort;
+                            Console.WriteLine("Bericht voor " + voor + " doorgestuurd naar " + naar);
                             SendMessage(Int32.Parse(message.Split()[0]), message);                           
                         }
                     }
@@ -111,17 +121,12 @@ namespace MultiClientServer
         void UpdateDictionary(string input)
         {
             int poort = Int32.Parse(input.Split()[0]);
-            if (!Program.Buren.ContainsKey(poort) && poort != eigenadres) //
+            if (!Program.Buren.ContainsKey(poort) && poort != eigenadres)
             {
-                Connection connection = new Connection(this.Read, this.Write);
-                Program.Buren.Add(poort, connection);
-                Program.Connecties.Add(poort);
-                connection.Read = this.Read;
-                connection.Write = this.Write;
+                Connection connection = new Connection(this.Read, this.Write, poort);
+                Program.AddConnection(connection);
                 connection.favopoort = this.favopoort;
-                connection.eigenadres = this.eigenadres;
-                connection.doeladres = poort;
-                SendDictionary(GetNeigbours(), poort);
+                connection.ping = this.ping + Int32.Parse(input.Split()[1]);
                 //connection.Ping(connection.doeladres);               
             }
 
