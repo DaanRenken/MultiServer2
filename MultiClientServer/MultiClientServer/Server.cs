@@ -43,8 +43,8 @@ namespace MultiClientServer
                 connection.favopoort = zijnPoort;
                 Program.Connecties.Add(zijnPoort);
                 connection.Ping(zijnPoort);
-                connection.senddictionary();
-
+                connection.SendDictionary();
+                connection.SendDictionary(connection.GetNeigbours(), zijnPoort);
             }
         }
     }

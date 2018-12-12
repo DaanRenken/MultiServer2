@@ -63,7 +63,8 @@ namespace MultiClientServer
                             connection.doeladres = poort;
                             connection.favopoort = poort;
                             connection.Ping(poort);
-                            connection.senddictionary();
+                            connection.SendDictionary();
+                            connection.SendDictionary(connection.GetNeigbours(), poort);
                         }
                     }
                     else if (input.StartsWith("ping"))
@@ -94,7 +95,7 @@ namespace MultiClientServer
                         }
                         else
                         {
-                            Buren[poort].Write.WriteLine(input);
+                            Buren[poort].SendMessage(input);
                         }
                     }
                 }
@@ -112,5 +113,6 @@ namespace MultiClientServer
                 Console.WriteLine(Connecties[i] + " " + Buren[Connecties[i]].ping + " " + Buren[Connecties[i]].eigenadres + " " + Buren[Connecties[i]].doeladres+ " " +Buren[Connecties[i]].favopoort + " print");
             }
         }
+
     }
 }
