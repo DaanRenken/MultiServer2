@@ -57,19 +57,21 @@ namespace MultiClientServer
         }
 
         // LET OP: Nadat er verbinding is gelegd, kun je vergeten wie er client/server is (en dat kun je aan het Connection-object dus ook niet zien!)
-        private void Timer(object o, EventArgs e)
-        {
-            Ping(doeladres);
-        }
+
+        //private void Timer(object o, EventArgs e)
+        //{
+        //    Ping(doeladres);
+        //}
 
 
         // Deze loop leest wat er binnenkomt en print dit
         public void ReaderThread()
         {
-            timer = new System.Timers.Timer();
-            timer.Elapsed += new System.Timers.ElapsedEventHandler(Timer);
-            timer.Interval = 60000;
+            //timer = new System.Timers.Timer();
+            //timer.Elapsed += new System.Timers.ElapsedEventHandler(Timer);
+            //timer.Interval = 60000;
             //timer.Enabled = true;
+
             try
             {
                 while (true)
@@ -78,7 +80,6 @@ namespace MultiClientServer
                     //Console.WriteLine(message);
                     if (message.StartsWith(eigenadres.ToString()))
                     {
-
                         message = message.Substring(message.IndexOf(" ") + 1);
                         if (message.StartsWith("ping ping"))
                         {
@@ -98,6 +99,23 @@ namespace MultiClientServer
                         else if (message.StartsWith("Dictionary"))
                         {
                             UpdateDictionary(message.Substring(message.IndexOf(" ") + 1));
+                        }
+                        else if (message.StartsWith("Remove Connection"))
+                        {
+                            int poort = Int32.Parse(message.Split()[2]);                        
+                            Program.RemoveConnection(poort);
+                        }
+                        else if(message.StartsWith("Removed Connection"))
+                        {
+                            int poort = Int32.Parse(message.Split()[2]);
+                            if (Program.Buren[poort].favopoort != this.doeladres)
+                            {
+                                SendDictionary(this, poort);
+                            }
+                            else if (Program.Buren[poort].favopoort == this.favopoort)
+                            {
+                                Program.RemoveConnection(poort);
+                            }
                         }
                         else
                         {
@@ -124,10 +142,9 @@ namespace MultiClientServer
             if (!Program.Buren.ContainsKey(poort) && poort != eigenadres)
             {
                 Connection connection = new Connection(this.Read, this.Write, poort);
-                Program.AddConnection(connection);
                 connection.favopoort = this.favopoort;
-                connection.ping = this.ping + Int32.Parse(input.Split()[1]);
-                //connection.Ping(connection.doeladres);               
+                Program.AddConnection(connection);
+                //connection.ping = this.ping + Int32.Parse(input.Split()[1]);             
             }
 
         }
@@ -160,11 +177,10 @@ namespace MultiClientServer
             if (!Stop())
             {
                 ping = (int)stopwatch.ElapsedMilliseconds;
-                //Console.WriteLine(doeladres + " ping is " + ping);
             }
             else
             {
-                Console.WriteLine(poort + " ping timed out");
+                //Console.WriteLine(poort + " ping timed out");
             }
 
         }
@@ -180,35 +196,25 @@ namespace MultiClientServer
         {
             for (int i = 0; i < Program.Connecties.Count; i++)
             {
-                //if (Program.Connecties[i] != eigenadres)
                 {
-                    string output = "Dictionary " + Program.Connecties[i] + " " + Program.Buren[Program.Connecties[i]].ping;
-                    Console.WriteLine(output);
-                    SendMessage(output);
+                    SendDictionary(this, Program.Connecties[i]);
                 }
             }
+        }
+        public void SendDictionary(Connection Neigbour, int connectie)
+        {
+            string output = "Dictionary " + connectie + " " + Program.Buren[connectie].ping;
+            Neigbour.SendMessage(output);
         }
         public void SendDictionary(List<Connection> Neigbours, int connectie)
         {
-            string output = "Dictionary " + connectie + " " + Program.Buren[connectie].ping;
+
             for (int i = 0; i < Neigbours.Count; i++)
             {
-                Neigbours[i].SendMessage(output);
+                SendDictionary(Neigbours[i], connectie);
             }
         }
 
-        public List<Connection> GetNeigbours()
-        {
-            List<Connection> neigbours = new List<Connection>();
-            for (int i = 0; i < Program.Connecties.Count; i++)
-            {
-                Connection connectie = Program.Buren[Program.Connecties[i]];
-                if (connectie.doeladres == connectie.favopoort)
-                {
-                    neigbours.Add(connectie);
-                }
-            }
-            return neigbours;
-        }
+
     }
 }
