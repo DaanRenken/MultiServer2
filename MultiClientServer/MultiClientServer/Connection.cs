@@ -55,6 +55,17 @@ namespace MultiClientServer
             threads.Add(thread);
             thread.Start();     
         }
+        public Connection(int doeladres, int favopoort, StreamReader read)
+        {
+            this.Read = read;
+            this.eigenadres = Program.MijnPoort;
+            this.doeladres = doeladres;
+            this.favopoort = favopoort;
+
+            Thread thread = new Thread(ReaderThread);
+            threads.Add(thread);
+            thread.Start();
+        }
 
         // LET OP: Nadat er verbinding is gelegd, kun je vergeten wie er client/server is (en dat kun je aan het Connection-object dus ook niet zien!)
 
@@ -77,7 +88,7 @@ namespace MultiClientServer
                 while (true)
                 {
                     string message = Read.ReadLine();
-                    //Console.WriteLine(message);
+                    Console.WriteLine(message);
                     if (message.StartsWith(eigenadres.ToString()))
                     {
                         message = message.Substring(message.IndexOf(" ") + 1);
@@ -102,19 +113,24 @@ namespace MultiClientServer
                         }
                         else if (message.StartsWith("Remove Connection"))
                         {
+                            Console.WriteLine(message);
                             int poort = Int32.Parse(message.Split()[2]);                        
                             Program.RemoveConnection(poort);
                         }
                         else if(message.StartsWith("Removed Connection"))
                         {
+                            Console.WriteLine(message);
                             int poort = Int32.Parse(message.Split()[2]);
-                            if (Program.Buren[poort].favopoort != this.doeladres)
+                            //if (this.doeladres == this.favopoort)
                             {
-                                SendDictionary(this, poort);
-                            }
-                            else if (Program.Buren[poort].favopoort == this.favopoort)
-                            {
-                                Program.RemoveConnection(poort);
+                                if (Program.Buren[poort].favopoort != Int32.Parse(message.Split()[3]))
+                                {
+                                    SendDictionary(this, poort);
+                                }
+                                else if (Program.Buren[poort].favopoort == this.favopoort)
+                                {
+                                    Program.RemoveConnection(poort);
+                                }
                             }
                         }
                         else
@@ -128,7 +144,7 @@ namespace MultiClientServer
                         {
                             int voor = Int32.Parse(message.Split()[0]);
                             int naar = Program.Buren[voor].favopoort;
-                            Console.WriteLine("Bericht voor " + voor + " doorgestuurd naar " + naar);
+                            //Console.WriteLine("Bericht voor " + voor + " doorgestuurd naar " + naar);
                             SendMessage(Int32.Parse(message.Split()[0]), message);                           
                         }
                     }
@@ -151,7 +167,14 @@ namespace MultiClientServer
         public void SendMessage(string message)
         {
             message = doeladres + " " + message;
-            Write.WriteLine(message);
+            if (this.doeladres == favopoort)
+            {
+                Write.WriteLine(message);
+            }
+            else
+            {
+                SendMessage(favopoort, message);
+            }
         }
         public void SendMessage(int naarpoort, string message)
         {

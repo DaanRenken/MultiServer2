@@ -95,7 +95,7 @@ namespace MultiClientServer
                 }
                 catch
                 {
-                    //Console.WriteLine("foute input probeer het nog eens");
+                    Console.WriteLine("foute input probeer het nog eens");
                 }
             }
 
@@ -111,27 +111,30 @@ namespace MultiClientServer
         }
         public  static void AddConnection(Connection connection)
         {
-            int poort = connection.doeladres;
-            if (Buren.ContainsKey(poort))
+            lock (o)
             {
-                if (Buren[poort].doeladres != Buren[poort].favopoort && connection.doeladres == connection.favopoort)
+                int poort = connection.doeladres;
+                if (Buren.ContainsKey(poort))
                 {
-                    Buren[poort] = connection;
-                    Console.WriteLine("Verbonden: " + poort);                   
+                    if (Buren[poort].doeladres != Buren[poort].favopoort && connection.doeladres == connection.favopoort)
+                    {
+                        Buren[poort] = connection;
+                        Console.WriteLine("Verbonden: " + poort);
+                    }
+                    //Console.WriteLine("Hier is al verbinding naar!");
                 }
-                //Console.WriteLine("Hier is al verbinding naar!");
-            }
-            else if (poort != MijnPoort)
-            {
-                // Leg verbinding aan (als client)
-                Buren.Add(poort, connection);
-                Connecties.Add(poort);
-                //connection.Ping(poort);
-                connection.SendDictionary();
-                connection.SendDictionary(GetNeigbours(), poort);
-                if (connection.doeladres == connection.favopoort)
+                else if (poort != MijnPoort)
                 {
-                    Console.WriteLine("Verbonden: " + poort);
+                    // Leg verbinding aan (als client)
+                    Buren.Add(poort, connection);
+                    Connecties.Add(poort);
+                    //connection.Ping(poort);
+                    connection.SendDictionary();
+                    connection.SendDictionary(GetNeigbours(), poort);
+                    if (connection.doeladres == connection.favopoort)
+                    {
+                        Console.WriteLine("Verbonden: " + poort);
+                    }
                 }
             }
 
@@ -144,24 +147,32 @@ namespace MultiClientServer
                 foreach (int port in lijst)
                 {
                     Connection connection = Buren[port];
-                    connection.SendMessage("Removed Connection " + MijnPoort);
+                    try
+                    {
+                        connection.SendMessage("Removed Connection " + MijnPoort);
+                    }
+                    catch { }
                     //Console.WriteLine("Remove Connection " + MijnPoort + "DEBUG");
                     Connecties.Remove(connection.doeladres);
                     Buren.Remove(connection.doeladres);
-                    List<Connection> neigbours = GetNeigbours();
-                    foreach (Connection i in neigbours)
+                    try
                     {
-                        i.SendMessage("Removed Connection " + port + " " + MijnPoort);
-                        //Console.WriteLine("Removed Connection " + port + " " + MijnPoort + "DEBUG");
+                        List<Connection> neigbours = GetNeigbours();
+                        foreach (Connection i in neigbours)
+                        {
+                            i.SendMessage("Removed Connection " + port + " " + MijnPoort);
+                            //Console.WriteLine("Removed Connection " + port + " " + MijnPoort + "DEBUG");
+                        }
+                        if (connection.doeladres == connection.favopoort)
+                        {
+                            Console.WriteLine("Verbroken: " + port);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Onbereikbaar: " + port);
+                        }
                     }
-                    if (connection.doeladres == connection.favopoort)
-                    {
-                        Console.WriteLine("Verbroken: " + port);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Onbereikbaar: " + port);
-                    }
+                    catch { }
                 }
             }
         }
