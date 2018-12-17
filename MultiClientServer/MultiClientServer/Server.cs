@@ -36,8 +36,15 @@ namespace MultiClientServer
                 //Console.WriteLine("Client maakt verbinding: " + zijnPoort);
 
                 // Zet de nieuwe verbinding in de verbindingslijst
-                Connection connection = new Connection(clientIn, clientOut, zijnPoort);
-                Program.AddConnection(connection);
+                if (!Program.Connecties.Contains(zijnPoort))
+                {
+                    Connection connection = new Connection(clientIn, clientOut, zijnPoort);
+                    Program.AddConnection(connection);
+                }
+                else
+                {
+                    Console.WriteLine("Verbinding bestaat al met poort " + zijnPoort);
+                }
             }
         }
     }

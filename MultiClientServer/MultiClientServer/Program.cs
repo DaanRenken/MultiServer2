@@ -15,36 +15,46 @@ namespace MultiClientServer
 
         static void Main(string[] args)
         {
-            Console.Write("Op welke poort ben ik server? ");
-            //MijnPoort = int.Parse(args[0]);
-            MijnPoort = int.Parse(Console.ReadLine());
+            bool cmdInput = (args.Length != 0);
+            if (cmdInput)
+            {
+                MijnPoort = int.Parse(args[0]);
+            }
+            else
+            {
+                MijnPoort = int.Parse(Console.ReadLine());
+            }
             new Server(MijnPoort);
             Console.Title = MijnPoort.ToString();
 
-            /*
-            for (int i = 1; i < args.Length; i++)
+            if (cmdInput)
             {
-                int newPoort = int.Parse(args[i]);
-                bool connectSucceed = false;
-                while (!connectSucceed)
+                for (int i = 1; i < args.Length; i++)
                 {
-                    System.Threading.Thread.Sleep(1000);
-                    try
+                    int newPoort = int.Parse(args[i]);
+                    bool connectSucceed = false;
+                    while (!connectSucceed)
                     {
-                        if (Buren.ContainsKey(newPoort))
-                            Console.WriteLine("Hier is al verbinding naar!");
-                        else
+                        System.Threading.Thread.Sleep(50);
+                        try
                         {
-                            // Leg verbinding aan (als client)
-                            Buren.Add(newPoort, new Connection(newPoort));
+                            if (Buren.ContainsKey(newPoort))
+                                Console.WriteLine("Hier is al verbinding naar! (cmdInput)");
+                            else
+                            {
+                                // Leg verbinding aan (als client)
+                                Connection connection = new Connection(newPoort);
+                                Buren.Add(newPoort, connection);
+                                Connecties.Add(newPoort);
+                            }
+                            connectSucceed = true;
+                            Console.WriteLine("Verbinding succesvol afgehandeld.");
                         }
-                        connectSucceed = true;
+                        catch { Exception e; }
                     }
-                    catch { Exception e; }
                 }
             }
-            */
-            
+
             while (true)
             {
                 string input = Console.ReadLine();
