@@ -11,9 +11,10 @@ namespace MultiClientServer
 
         static public Dictionary<int, Connection> Buren = new Dictionary<int, Connection>();
         static public List<int> Connecties = new List<int>();
+        static object o = new object();
+
         static void Main(string[] args)
         {
-            Console.Write("Op welke poort ben ik server? ");
             bool cmdInput = (args.Length != 0);
             if (cmdInput)
             {
@@ -25,8 +26,6 @@ namespace MultiClientServer
             }
             new Server(MijnPoort);
             Console.Title = MijnPoort.ToString();
-            Console.WriteLine("Typ [verbind poortnummer] om verbinding te maken, bijvoorbeeld: verbind 1100");
-            Console.WriteLine("Typ [poortnummer bericht] om een bericht te sturen, bijvoorbeeld: 1100 hoi hoi");
 
             if (cmdInput)
             {
@@ -55,73 +54,166 @@ namespace MultiClientServer
                     }
                 }
             }
-            
 
             while (true)
             {
                 string input = Console.ReadLine();
-                //try
+                try
                 {
-                    if (input.StartsWith("verbind"))
+                    switch (input.Split()[0])
                     {
-                        int poort = int.Parse(input.Split()[1]);
-                        if (Buren.ContainsKey(poort))
-                            Console.WriteLine("Hier is al verbinding naar! (manualInput)");
-                        else
-                        {
-                            // Leg verbinding aan (als client)
-                            Connection connection = new Connection(poort);
-                            Buren.Add(poort, connection);
-                            Connecties.Add(poort);
-                            connection.ping = connection.Ping(poort);
-                            
-                        }
+                        case "R":
+                            {
+                                Print();
+                                break;
+                            }
+                        case "B":
+                            {
+                                input = input.Substring(input.IndexOf(" ") + 1);
+                                Buren[Int32.Parse(input.Split()[0])].SendMessage(input.Substring(input.IndexOf(" ") + 1));
+                                break;
+                            }
+                        case "C":
+                            {
+                                int poort = int.Parse(input.Split()[1]);
+                                Connection connection = new Connection(poort);
+                                AddConnection(connection);
+                                break;
+                            }
+                        case "D":
+                            {
+                                int poort = int.Parse(input.Split()[1]);
+                                Buren[poort].SendMessage("Remove Connection " + MijnPoort);
+                                RemoveConnection(poort);
+                                break;
+                            }
                     }
-                    else if (input.StartsWith("ping"))
                     {
-                        int poort = int.Parse(input.Split()[1]);
-                        if (Buren.ContainsKey(poort))
+                        if (input.StartsWith("ping"))
                         {
-                            Console.WriteLine((Buren[poort].Ping(poort)));
-                        }
-                        else
-                        {
-                            Console.WriteLine("Hier is al verbinding naar! (pingpong)");
-                        }
-                    }
-                    else if (input.StartsWith("R"))
-                    {
-                        print();
-                    }
-                    else
-                    {
-                        // Stuur berichtje
-                        string[] delen = input.Split(new char[] { ' ' }, 2);
-                        int poort = int.Parse(delen[0]);
-                        if (!Buren.ContainsKey(poort))
-                        {
-                            Console.WriteLine("Hier is al verbinding naar! (Message)");
-
-                        }
-                        else
-                        {
-                            Buren[poort].Write.WriteLine(MijnPoort + ": " + delen[1]);
+                            int poort = int.Parse(input.Split()[1]);
+                            if (Buren.ContainsKey(poort))
+                            {
+                                Buren[poort].Ping(poort);
+                            }
+                            else
+                            {
+                                //Console.WriteLine("Poort onbekent!");
+                            }
                         }
                     }
                 }
-                //catch
-                //{
-                //    Console.WriteLine("foute input probeer het nog eens");
-                //}
+                catch
+                {
+                    Console.WriteLine("foute input probeer het nog eens");
+                }
             }
-            
+
         }
-        static void print()
+        static void Print()
         {
-            for (int i = 0; i < Connecties.Count; i++)
+            Console.WriteLine(MijnPoort + " 0 Local");
+            Connecties.Sort();
+            foreach (int i in Connecties)
             {
-               Console.WriteLine(Connecties[i] + " " + Buren[Connecties[i]].ping);
+                Console.WriteLine(i + " " + Buren[i].ping + " " + Buren[i].favopoort);
             }
+        }
+        public static void AddConnection(Connection connection)
+        {
+            lock (o)
+            {
+                int poort = connection.doeladres;
+                if (Buren.ContainsKey(poort))
+                {
+                    if (Buren[poort].doeladres != Buren[poort].favopoort && connection.doeladres == connection.favopoort)
+                    {
+                        Buren[poort] = connection;
+                        Console.WriteLine("Verbonden: " + poort);
+                    }
+                    //Console.WriteLine("Hier is al verbinding naar!");
+                }
+                else if (poort != MijnPoort)
+                {
+                    // Leg verbinding aan (als client)
+                    Buren.Add(poort, connection);
+                    Connecties.Add(poort);
+                    //connection.Ping(poort);
+                    connection.SendDictionary();
+                    connection.SendDictionary(GetNeigbours(), poort);
+                    if (connection.doeladres == connection.favopoort)
+                    {
+                        Console.WriteLine("Verbonden: " + poort);
+                    }
+                }
+            }
+
+        }
+        public static void RemoveConnection(int poort)
+        {
+            lock (o)
+            {
+                List<int> lijst = GetVirtualPorts(poort);
+                foreach (int port in lijst)
+                {
+                    Connection connection = Buren[port];
+                    try
+                    {
+                        connection.SendMessage("Removed Connection " + MijnPoort);
+                    }
+                    catch { }
+                    //Console.WriteLine("Remove Connection " + MijnPoort + "DEBUG");
+                    Connecties.Remove(connection.doeladres);
+                    Buren.Remove(connection.doeladres);
+                    try
+                    {
+                        List<Connection> neigbours = GetNeigbours();
+                        foreach (Connection i in neigbours)
+                        {
+                            i.SendMessage("Removed Connection " + port + " " + MijnPoort);
+                            //Console.WriteLine("Removed Connection " + port + " " + MijnPoort + "DEBUG");
+                        }
+                        if (connection.doeladres == connection.favopoort)
+                        {
+                            Console.WriteLine("Verbroken: " + port);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Onbereikbaar: " + port);
+                        }
+                    }
+                    catch { }
+                }
+            }
+        }
+        public static List<Connection> GetNeigbours()
+        {
+            List<Connection> neigbours = new List<Connection>();
+            foreach (int i in Connecties)
+            {
+                Connection connectie = Program.Buren[i];
+                if (connectie.doeladres == connectie.favopoort)
+                {
+                    neigbours.Add(connectie);
+                }
+            }
+            return neigbours;
+        }
+        public static List<int> GetVirtualPorts(int poort)
+        {
+            List<int> output = new List<int>();
+            foreach (int i in Connecties)
+            {
+                if (Buren[i].favopoort == poort)
+                {
+                    output.Add(i);
+                }
+            }
+            if (!output.Contains(poort))
+            {
+                output.Add(poort);
+            }
+            return output;
         }
     }
 }
