@@ -72,7 +72,7 @@ namespace MultiClientServer
                 while (true)
                 {
                     string message = Read.ReadLine();
-                    Console.WriteLine(message);
+                    //Console.WriteLine(message);
                     // als een bericht binnenkomt wat voor de eigen poort bedoeld is, wordt er gekeken wat de opdracht is
                     if (message.StartsWith(eigenadres.ToString()))
                     {
@@ -92,14 +92,14 @@ namespace MultiClientServer
                         // vanuit RemoveConnection wordt vervolgens "Removed Connection" naar alle buren gestuurd
                         else if (message.StartsWith("Remove Connection"))
                         {
-                            Console.WriteLine(message);
+                            //Console.WriteLine(message);
                             int poort = Int32.Parse(message.Split()[2]);
                             Program.RemoveConnection(poort);
                         }
                         // bij "Removed Connection" is er een connectie verdwenen en updaten alle buren hun dictionary en sturen die naar hun buren
                         else if (message.StartsWith("Removed Connection"))
                         {
-                            Console.WriteLine(message);
+                            //Console.WriteLine(message);
                             int poort = Int32.Parse(message.Split()[2]);
                             //if (this.doeladres == this.favopoort)
                             {
@@ -152,7 +152,7 @@ namespace MultiClientServer
             {
                 if (Program.Buren[poort].ping > ping2)
                 {
-                    Console.WriteLine("start new connection" + this.doeladres + " " + this.favopoort + " " + this.ping + " " + poort);
+                    //Console.WriteLine("start new connection" + this.doeladres + " " + this.favopoort + " " + this.ping + " " + poort);
                     Program.UpdateConnection(poort, this.favopoort, ping2);
                 }
             }

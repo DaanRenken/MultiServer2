@@ -153,13 +153,13 @@ namespace MultiClientServer
                     Buren.Add(poort, connection);
                     Connecties.Add(poort);
                     //connection.Ping(poort);
-                    connection.SendDictionary();
-                    connection.SendDictionary(GetNeigbours(), poort);
                     if (connection.doeladres == connection.favopoort)
                     {
                         Console.WriteLine("Verbonden: " + poort);
                     }
                 }
+                connection.SendDictionary();
+                connection.SendDictionary(GetNeigbours(), poort);
             }
         }
         public static void UpdateConnection(int poort, int favopoort, int ping)
@@ -167,6 +167,7 @@ namespace MultiClientServer
             Connection connection = Buren[poort];
             connection.favopoort = favopoort;
             connection.ping = ping;
+            connection.SendDictionary();
             connection.SendDictionary(GetNeigbours(), poort);
         }
 
