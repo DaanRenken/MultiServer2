@@ -16,7 +16,6 @@ namespace MultiClientServer
         public StreamWriter Write;
         public List<Thread> threads = new List<Thread>();
         public int ping, eigenadres, doeladres, favopoort;
-        private bool stop;
         object o = new object();
         private System.Timers.Timer timer;
         // Connection heeft 2 constructoren: deze constructor wordt gebruikt als wij CLIENT worden bij een andere SERVER
@@ -55,6 +54,8 @@ namespace MultiClientServer
             threads.Add(thread);
             thread.Start();
         }
+
+        // Derde constructor, bedoeld om streamreader/streamwriter eruit te slopen
         public Connection(int doeladres, int favopoort, int ping)
         {
             this.eigenadres = Program.MijnPoort;
@@ -72,30 +73,38 @@ namespace MultiClientServer
                 {
                     string message = Read.ReadLine();
                     Console.WriteLine(message);
+                    // als een bericht binnenkomt wat voor de eigen poort bedoeld is, wordt er gekeken wat de opdracht is
                     if (message.StartsWith(eigenadres.ToString()))
                     {
                         message = message.Substring(message.IndexOf(" ") + 1);
 
+                        // bij "GetDictionary" wordt de dictionary gestuurd naar iedere neighbor
                         if (message.StartsWith("GetDictionary"))
                         {
                             SendDictionary();
                         }
+                        // bij "Dictionary" wordt een nieuwe connection aan de dictonary toegevoegd
                         else if (message.StartsWith("Dictionary"))
                         {
                             UpdateDictionary(message.Substring(message.IndexOf(" ") + 1));
                         }
+                        // bij "Remove Connection" wordt de connectie tussen deze en de betreffende poort verwijderd
+                        // vanuit RemoveConnection wordt vervolgens "Removed Connection" naar alle buren gestuurd
                         else if (message.StartsWith("Remove Connection"))
                         {
                             Console.WriteLine(message);
                             int poort = Int32.Parse(message.Split()[2]);
                             Program.RemoveConnection(poort);
                         }
+                        // bij "Removed Connection" is er een connectie verdwenen en updaten alle buren hun dictionary en sturen die naar hun buren
                         else if (message.StartsWith("Removed Connection"))
                         {
                             Console.WriteLine(message);
                             int poort = Int32.Parse(message.Split()[2]);
                             //if (this.doeladres == this.favopoort)
                             {
+                                // wanneer een verbinding wegvalt, wordt er eerst van uit gegaan dat die poort niet meer bereikbaar is
+                                // als nou later blijkt dat die toch nog te bereiken is, wordt er via de dictionary rondgestuurd dat er toch nog een verbinding mogelijk is
                                 if (Program.Buren[poort].favopoort != Int32.Parse(message.Split()[3]))
                                 {
                                     SendDictionary(this, poort);
@@ -106,6 +115,7 @@ namespace MultiClientServer
                                 }
                             }
                         }
+                        // als het bericht niet voor deze poort is, wordt het doorgestuurd naar degene voor wie het wel bestemd is
                         else
                         {
                             lock (o)
@@ -127,6 +137,8 @@ namespace MultiClientServer
             }
             catch { } // Verbinding is kennelijk verbroken
         }
+
+        // UpdateDictionary voegt een nieuwe connection aan de dictionary toe, mocht deze nog niet bestaan
         void UpdateDictionary(string input)
         {
             int poort = Int32.Parse(input.Split()[0]);
@@ -145,6 +157,8 @@ namespace MultiClientServer
                 }
             }
         }
+
+        // Alle SendMessage functies sturen messages, sturen ze door of ontvangen ze en writen ze
         public void SendMessage(string message)
         {
             message = doeladres + " " + message;
@@ -166,14 +180,8 @@ namespace MultiClientServer
             message = naarpoort + " " + message + " " + vanpoort;
             SendMessage(naarpoort, message);
         }
-        bool Stop()
-        {
-            lock (o)
-            {
-                return stop;
-            }
-        }
 
+        // Alle SendDictionary functies sturen de dictionary van de poort door naar hun neighbors, of printen een ontvangen dictionary
         public void SendDictionary()
         {
             for (int i = 0; i < Program.Connecties.Count; i++)
