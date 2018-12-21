@@ -34,21 +34,20 @@ namespace MultiClientServer
                 {
                     int newPoort = int.Parse(args[i]);
                     bool connectSucceed = false;
-                    while (!connectSucceed)
+                    //while (!connectSucceed)
                     {
                         System.Threading.Thread.Sleep(50);
                         try
                         {
-                            if (Buren.ContainsKey(newPoort)) {
-                                //Console.WriteLine("Hier is al verbinding naar! (cmdInput)");
-                            }
-                            else
-                            {
-                                // Leg verbinding aan (als client)
-                                Connection connection = new Connection(newPoort);
-                                Buren.Add(newPoort, connection);
-                                Connecties.Add(newPoort);
-                            }
+                            //if (Buren.ContainsKey(newPoort)) {
+                            //    //Console.WriteLine("Hier is al verbinding naar! (cmdInput)");
+                            //}
+                            //else
+                            //{
+                            // Leg verbinding aan (als client)
+                            Connection connection = new Connection(newPoort);
+                            AddConnection(connection);
+                            //}
                             connectSucceed = true;
                             Console.WriteLine("Verbonden: " + newPoort);
                         }
@@ -110,37 +109,7 @@ namespace MultiClientServer
                                     break;
                                 }
                             }
-                        // ping: stuur Ping-bericht naar poort
-                        case "ping":
-                            {
-                                int poort = int.Parse(input.Split()[1]);
-                                if (Buren.ContainsKey(poort))
-                                {
-                                    Buren[poort].Ping(poort);
-                                }
-                                else
-                                {
-                                    //Console.WriteLine("Poort onbekent!");
-                                }
-                                break;
-                            }
                     }
-                    /*
-                    {
-                        if (input.StartsWith("ping"))
-                        {
-                            int poort = int.Parse(input.Split()[1]);
-                            if (Buren.ContainsKey(poort))
-                            {
-                                Buren[poort].Ping(poort);
-                            }
-                            else
-                            {
-                                //Console.WriteLine("Poort onbekent!");
-                            }
-                        }
-                    }
-                    */
                 }
                 catch
                 {
@@ -171,6 +140,7 @@ namespace MultiClientServer
                 if (Buren.ContainsKey(poort))
                 {
                     if (Buren[poort].doeladres != Buren[poort].favopoort && connection.doeladres == connection.favopoort)
+                    //if (Buren[poort].ping < connection.ping)
                     {
                         Buren[poort] = connection;
                         Console.WriteLine("Verbonden: " + poort);
@@ -183,15 +153,22 @@ namespace MultiClientServer
                     Buren.Add(poort, connection);
                     Connecties.Add(poort);
                     //connection.Ping(poort);
-                    connection.SendDictionary();
-                    connection.SendDictionary(GetNeigbours(), poort);
                     if (connection.doeladres == connection.favopoort)
                     {
                         Console.WriteLine("Verbonden: " + poort);
                     }
                 }
+                connection.SendDictionary();
+                connection.SendDictionary(GetNeigbours(), poort);
             }
-
+        }
+        public static void UpdateConnection(int poort, int favopoort, int ping)
+        {
+            Connection connection = Buren[poort];
+            connection.favopoort = favopoort;
+            connection.ping = ping;
+            connection.SendDictionary();
+            connection.SendDictionary(GetNeigbours(), poort);
         }
 
         // verwijdert een hele poort (?) uit het systeem en update aan alle betreffenden (buren eigen poort + buren verwijderde poort) nieuwe dictionary
