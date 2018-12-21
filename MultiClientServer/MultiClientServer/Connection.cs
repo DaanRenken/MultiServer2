@@ -55,6 +55,9 @@ namespace MultiClientServer
             threads.Add(thread);
             thread.Start();
         }
+
+        // Derde constructor, gebruikt voor ???
+        // Bedoeld om streamreader/streamwriter eruit te slopen
         public Connection(int doeladres, int favopoort, StreamReader read)
         {
             this.Read = read;
@@ -88,14 +91,17 @@ namespace MultiClientServer
                 while (true)
                 {
                     string message = Read.ReadLine();
-                    Console.WriteLine(message);
+                    //Console.WriteLine(message);
+                    // als een bericht binnenkomt wat voor de eigen poort bedoeld is, wordt er gekeken wat de opdracht is
                     if (message.StartsWith(eigenadres.ToString()))
                     {
                         message = message.Substring(message.IndexOf(" ") + 1);
+                        // bij "ping ping" wordt "ping pong" teruggestuurd (basically een testbericht)
                         if (message.StartsWith("ping ping"))
                         {
                             SendMessage(Int32.Parse(message.Split()[2]), eigenadres, "ping pong");
                         }
+                        // bij "ping pong" is er eerst "ping ping" gestuurd en krijg je die nu terug
                         else if (message.StartsWith("ping pong"))
                         {
                             lock (o)
@@ -103,26 +109,34 @@ namespace MultiClientServer
                                 Program.Buren[Int32.Parse(message.Split()[2])].stop = false;
                             }
                         }
+                        // bij "GetDictionary" wordt de dictionary gestuurd naar iedere neighbor
                         else if (message.StartsWith("GetDictionary"))
                         {
                             SendDictionary();
                         }
+                        // bij "Dictionary" wordt een nieuwe connection aan de dictonary toegevoegd
                         else if (message.StartsWith("Dictionary"))
                         {
                             UpdateDictionary(message.Substring(message.IndexOf(" ") + 1));
                         }
+                        // bij "Remove Connection" wordt de connectie tussen deze en de betreffende poort verwijderd
+                        // vanuit RemoveConnection wordt vervolgens "Removed Connection" naar alle buren gestuurd
                         else if (message.StartsWith("Remove Connection"))
                         {
                             Console.WriteLine(message);
                             int poort = Int32.Parse(message.Split()[2]);
                             Program.RemoveConnection(poort);
                         }
+                        // bij "Removed Connection" is er een connectie verdwenen en updaten alle buren hun dictionary en sturen die naar hun buren
                         else if (message.StartsWith("Removed Connection"))
                         {
                             Console.WriteLine(message);
                             int poort = Int32.Parse(message.Split()[2]);
                             //if (this.doeladres == this.favopoort)
                             {
+                                // !!
+                                // wat gebeurt er hier precies?
+                                // !!
                                 if (Program.Buren[poort].favopoort != Int32.Parse(message.Split()[3]))
                                 {
                                     SendDictionary(this, poort);
@@ -133,18 +147,20 @@ namespace MultiClientServer
                                 }
                             }
                         }
+                        // als het geen van die dingen is, wordt de message gewoon geprint
                         else
                         {
                             Console.WriteLine(message);
                         }
                     }
+                    // als het bericht niet voor deze poort is, wordt het doorgestuurd naar degene voor wie het wel bestemd is
                     else
                     {
                         lock (o)
                         {
                             int voor = Int32.Parse(message.Split()[0]);
                             int naar = Program.Buren[voor].favopoort;
-                            //Console.WriteLine("Bericht voor " + voor + " doorgestuurd naar " + naar);
+                            Console.WriteLine("Bericht voor " + voor + " doorgestuurd naar " + naar);
                             SendMessage(Int32.Parse(message.Split()[0]), message);
                         }
                     }
@@ -152,6 +168,8 @@ namespace MultiClientServer
             }
             catch { } // Verbinding is kennelijk verbroken
         }
+
+        // UpdateDictionary voegt een nieuwe connection aan de dictionary toe, mocht deze nog niet bestaan
         void UpdateDictionary(string input)
         {
             int poort = Int32.Parse(input.Split()[0]);
@@ -164,6 +182,8 @@ namespace MultiClientServer
             }
 
         }
+
+        // Alle SendMessage functies sturen messages, sturen ze door of ontvangen ze en writen ze
         public void SendMessage(string message)
         {
             message = doeladres + " " + message;
@@ -185,6 +205,8 @@ namespace MultiClientServer
             message = naarpoort + " " + message + " " + vanpoort;
             SendMessage(naarpoort, message);
         }
+
+        // Ping is een testfunctie die de tijd tussen twee poorten meet
         public void Ping(int poort)
         {
             stop = true;
@@ -207,6 +229,8 @@ namespace MultiClientServer
             }
 
         }
+
+        // lock boolean
         bool Stop()
         {
             lock (o)
@@ -215,6 +239,7 @@ namespace MultiClientServer
             }
         }
 
+        // Alle SendDictionary functies sturen de dictionary van de poort door naar hun neighbors, of printen een ontvangen dictionary
         public void SendDictionary()
         {
             for (int i = 0; i < Program.Connecties.Count; i++)

@@ -13,6 +13,7 @@ namespace MultiClientServer
         static public List<int> Connecties = new List<int>();
         static object o = new object();
 
+        // startup: als programma vanuit cmd wordt geopend, worden er meteen poorten aangemaakt en connecties gelegd
         static void Main(string[] args)
         {
             bool cmdInput = (args.Length != 0);
@@ -25,7 +26,7 @@ namespace MultiClientServer
                 MijnPoort = int.Parse(Console.ReadLine());
             }
             new Server(MijnPoort);
-            Console.Title = MijnPoort.ToString();
+            Console.Title = "NetChange " + MijnPoort.ToString();
 
             if (cmdInput)
             {
@@ -38,8 +39,9 @@ namespace MultiClientServer
                         System.Threading.Thread.Sleep(50);
                         try
                         {
-                            if (Buren.ContainsKey(newPoort))
-                                Console.WriteLine("Hier is al verbinding naar! (cmdInput)");
+                            if (Buren.ContainsKey(newPoort)) {
+                                //Console.WriteLine("Hier is al verbinding naar! (cmdInput)");
+                            }
                             else
                             {
                                 // Leg verbinding aan (als client)
@@ -48,7 +50,7 @@ namespace MultiClientServer
                                 Connecties.Add(newPoort);
                             }
                             connectSucceed = true;
-                            Console.WriteLine("Verbinding succesvol afgehandeld.");
+                            Console.WriteLine("Verbonden: " + newPoort);
                         }
                         catch { Exception e; }
                     }
@@ -62,17 +64,29 @@ namespace MultiClientServer
                 {
                     switch (input.Split()[0])
                     {
+                        // R: reveal dictionary
                         case "R":
                             {
                                 Print();
                                 break;
                             }
+                        // B: bericht naar poort
                         case "B":
                             {
                                 input = input.Substring(input.IndexOf(" ") + 1);
-                                Buren[Int32.Parse(input.Split()[0])].SendMessage(input.Substring(input.IndexOf(" ") + 1));
-                                break;
+                                int poort = Int32.Parse(input.Split()[0]);
+                                if (Connecties.Contains(poort))
+                                {
+                                    Buren[poort].SendMessage(input.Substring(input.IndexOf(" ") + 1));
+                                    break;
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Poort " + poort + " is niet bekend");
+                                    break;
+                                }
                             }
+                        // C: connect met poort
                         case "C":
                             {
                                 int poort = int.Parse(input.Split()[1]);
@@ -80,14 +94,38 @@ namespace MultiClientServer
                                 AddConnection(connection);
                                 break;
                             }
+                        // D: destroy verbinding met poort
                         case "D":
                             {
                                 int poort = int.Parse(input.Split()[1]);
-                                Buren[poort].SendMessage("Remove Connection " + MijnPoort);
-                                RemoveConnection(poort);
+                                if (Connecties.Contains(poort))
+                                {
+                                    Buren[poort].SendMessage("Remove Connection " + MijnPoort);
+                                    RemoveConnection(poort);
+                                    break;
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Poort " + poort + " is niet bekend");
+                                    break;
+                                }
+                            }
+                        // ping: stuur Ping-bericht naar poort
+                        case "ping":
+                            {
+                                int poort = int.Parse(input.Split()[1]);
+                                if (Buren.ContainsKey(poort))
+                                {
+                                    Buren[poort].Ping(poort);
+                                }
+                                else
+                                {
+                                    //Console.WriteLine("Poort onbekent!");
+                                }
                                 break;
                             }
                     }
+                    /*
                     {
                         if (input.StartsWith("ping"))
                         {
@@ -102,14 +140,17 @@ namespace MultiClientServer
                             }
                         }
                     }
+                    */
                 }
                 catch
                 {
-                    Console.WriteLine("foute input probeer het nog eens");
+                    Console.WriteLine("Foute input, probeer het nog eens");
                 }
             }
 
         }
+
+        // Print dictionary
         static void Print()
         {
             Console.WriteLine(MijnPoort + " 0 Local");
@@ -119,6 +160,9 @@ namespace MultiClientServer
                 Console.WriteLine(i + " " + Buren[i].ping + " " + Buren[i].favopoort);
             }
         }
+
+        // Voeg andere poort in connection toe aan buren en update dictionary naar neighbors
+        // Wat heeft favopoort hier mee te maken?
         public static void AddConnection(Connection connection)
         {
             lock (o)
@@ -149,6 +193,8 @@ namespace MultiClientServer
             }
 
         }
+
+        // verwijdert een hele poort (?) uit het systeem en update aan alle betreffenden (buren eigen poort + buren verwijderde poort) nieuwe dictionary
         public static void RemoveConnection(int poort)
         {
             lock (o)
