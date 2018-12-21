@@ -75,17 +75,7 @@ namespace MultiClientServer
                     if (message.StartsWith(eigenadres.ToString()))
                     {
                         message = message.Substring(message.IndexOf(" ") + 1);
-                        //if (message.StartsWith("ping ping"))
-                        //{
-                        //    SendMessage(Int32.Parse(message.Split()[2]), eigenadres, "ping pong");
-                        //}
-                        //else if (message.StartsWith("ping pong"))
-                        //{
-                        //    lock (o)
-                        //    {
-                        //        Program.Buren[Int32.Parse(message.Split()[2])].stop = false;
-                        //    }
-                        //}
+
                         if (message.StartsWith("GetDictionary"))
                         {
                             SendDictionary();
@@ -118,16 +108,19 @@ namespace MultiClientServer
                         }
                         else
                         {
-                            Console.WriteLine(message);
-                        }
-                    }
-                    else
-                    {
-                        lock (o)
-                        {
-                            int voor = Int32.Parse(message.Split()[0]);
-                            int naar = Program.Buren[voor].favopoort;
-                            SendMessage(Int32.Parse(message.Split()[0]), message);
+                            lock (o)
+                            {
+                                try
+                                {
+                                    int voor = Int32.Parse(message.Split()[0]);
+                                    int naar = Program.Buren[voor].favopoort;
+                                    SendMessage(naar, message);
+                                }
+                                catch
+                                {
+                                    Console.WriteLine(message);
+                                }
+                            }
                         }
                     }
                 }
@@ -137,14 +130,20 @@ namespace MultiClientServer
         void UpdateDictionary(string input)
         {
             int poort = Int32.Parse(input.Split()[0]);
-            int ping2 = Int32.Parse(input.Split()[1]);
-            if (!Program.Buren.ContainsKey(poort) && poort != eigenadres)
+            int ping2 = Int32.Parse(input.Split()[1])+1;
+            if ((!Program.Buren.ContainsKey(poort) && poort != eigenadres))
             {
-                Console.WriteLine("start new connection" + this.doeladres + " " + this.favopoort + " " + this.ping + " " + poort);
-                Connection connection = new Connection(poort, this.favopoort, ping2 + 1);
+                Connection connection = new Connection(poort, this.favopoort, ping2);
                 Program.AddConnection(connection);
             }
-
+            if (Program.Buren.ContainsKey(poort))
+            {
+                if (Program.Buren[poort].ping > ping2)
+                {
+                    Console.WriteLine("start new connection" + this.doeladres + " " + this.favopoort + " " + this.ping + " " + poort);
+                    Program.UpdateConnection(poort, this.favopoort, ping2);
+                }
+            }
         }
         public void SendMessage(string message)
         {
@@ -160,35 +159,13 @@ namespace MultiClientServer
         }
         public void SendMessage(int naarpoort, string message)
         {
-            Program.Buren[naarpoort].Write.WriteLine(message);
+            Program.Buren[naarpoort].SendMessage(message);
         }
         public void SendMessage(int naarpoort, int vanpoort, string message)
         {
             message = naarpoort + " " + message + " " + vanpoort;
             SendMessage(naarpoort, message);
         }
-        //public void Ping(int poort)
-        //{
-        //    stop = true;
-        //    Stopwatch stopwatch = new Stopwatch();
-        //    stopwatch.Start();
-        //    SendMessage(poort, eigenadres, "ping ping");
-        //    int i = 0;
-        //    while (Stop() && stopwatch.ElapsedMilliseconds < 5000)
-        //    {
-        //        i++;
-        //    }
-        //    stopwatch.Stop();
-        //    if (!Stop())
-        //    {
-        //        ping = (int)stopwatch.ElapsedMilliseconds;
-        //    }
-        //    else
-        //    {
-        //        //Console.WriteLine(poort + " ping timed out");
-        //    }
-
-        //}
         bool Stop()
         {
             lock (o)
@@ -219,7 +196,5 @@ namespace MultiClientServer
                 SendDictionary(Neigbours[i], connectie);
             }
         }
-
-
     }
 }
