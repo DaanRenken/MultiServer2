@@ -31,7 +31,7 @@ namespace MultiClientServer
             this.eigenadres = Program.MijnPoort;
             this.doeladres = poort;
             this.favopoort = poort;
-
+            this.ping = 1;
             Write.WriteLine("Poort: " + eigenadres);
 
             // Start het reader-loopje
@@ -48,41 +48,24 @@ namespace MultiClientServer
             this.eigenadres = Program.MijnPoort;
             this.doeladres = poort;
             this.favopoort = poort;
-
+            this.ping = 1;
             // Start het reader-loopje
-
-            Thread thread = new Thread(ReaderThread);
-            threads.Add(thread);
-            thread.Start();     
-        }
-        public Connection(int doeladres, int favopoort, StreamReader read)
-        {
-            this.Read = read;
-            this.eigenadres = Program.MijnPoort;
-            this.doeladres = doeladres;
-            this.favopoort = favopoort;
 
             Thread thread = new Thread(ReaderThread);
             threads.Add(thread);
             thread.Start();
         }
-
-        // LET OP: Nadat er verbinding is gelegd, kun je vergeten wie er client/server is (en dat kun je aan het Connection-object dus ook niet zien!)
-
-        //private void Timer(object o, EventArgs e)
-        //{
-        //    Ping(doeladres);
-        //}
-
+        public Connection(int doeladres, int favopoort, int ping)
+        {
+            this.eigenadres = Program.MijnPoort;
+            this.doeladres = doeladres;
+            this.favopoort = favopoort;
+            this.ping = ping;
+        }
 
         // Deze loop leest wat er binnenkomt en print dit
         public void ReaderThread()
         {
-            //timer = new System.Timers.Timer();
-            //timer.Elapsed += new System.Timers.ElapsedEventHandler(Timer);
-            //timer.Interval = 60000;
-            //timer.Enabled = true;
-
             try
             {
                 while (true)
@@ -92,18 +75,18 @@ namespace MultiClientServer
                     if (message.StartsWith(eigenadres.ToString()))
                     {
                         message = message.Substring(message.IndexOf(" ") + 1);
-                        if (message.StartsWith("ping ping"))
-                        {
-                            SendMessage(Int32.Parse(message.Split()[2]), eigenadres, "ping pong");
-                        }
-                        else if (message.StartsWith("ping pong"))
-                        {
-                            lock (o)
-                            {
-                                Program.Buren[Int32.Parse(message.Split()[2])].stop = false;
-                            }
-                        }
-                        else if (message.StartsWith("GetDictionary"))
+                        //if (message.StartsWith("ping ping"))
+                        //{
+                        //    SendMessage(Int32.Parse(message.Split()[2]), eigenadres, "ping pong");
+                        //}
+                        //else if (message.StartsWith("ping pong"))
+                        //{
+                        //    lock (o)
+                        //    {
+                        //        Program.Buren[Int32.Parse(message.Split()[2])].stop = false;
+                        //    }
+                        //}
+                        if (message.StartsWith("GetDictionary"))
                         {
                             SendDictionary();
                         }
@@ -114,10 +97,10 @@ namespace MultiClientServer
                         else if (message.StartsWith("Remove Connection"))
                         {
                             Console.WriteLine(message);
-                            int poort = Int32.Parse(message.Split()[2]);                        
+                            int poort = Int32.Parse(message.Split()[2]);
                             Program.RemoveConnection(poort);
                         }
-                        else if(message.StartsWith("Removed Connection"))
+                        else if (message.StartsWith("Removed Connection"))
                         {
                             Console.WriteLine(message);
                             int poort = Int32.Parse(message.Split()[2]);
@@ -144,8 +127,7 @@ namespace MultiClientServer
                         {
                             int voor = Int32.Parse(message.Split()[0]);
                             int naar = Program.Buren[voor].favopoort;
-                            //Console.WriteLine("Bericht voor " + voor + " doorgestuurd naar " + naar);
-                            SendMessage(Int32.Parse(message.Split()[0]), message);                           
+                            SendMessage(Int32.Parse(message.Split()[0]), message);
                         }
                     }
                 }
@@ -155,12 +137,12 @@ namespace MultiClientServer
         void UpdateDictionary(string input)
         {
             int poort = Int32.Parse(input.Split()[0]);
+            int ping2 = Int32.Parse(input.Split()[1]);
             if (!Program.Buren.ContainsKey(poort) && poort != eigenadres)
             {
-                Connection connection = new Connection(this.Read, this.Write, poort);
-                connection.favopoort = this.favopoort;
+                Console.WriteLine("start new connection" + this.doeladres + " " + this.favopoort + " " + this.ping + " " + poort);
+                Connection connection = new Connection(poort, this.favopoort, ping2 + 1);
                 Program.AddConnection(connection);
-                //connection.ping = this.ping + Int32.Parse(input.Split()[1]);             
             }
 
         }
@@ -185,28 +167,28 @@ namespace MultiClientServer
             message = naarpoort + " " + message + " " + vanpoort;
             SendMessage(naarpoort, message);
         }
-        public void Ping(int poort)
-        {
-            stop = true;
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
-            SendMessage(poort, eigenadres, "ping ping");
-            int i = 0;
-            while (Stop() && stopwatch.ElapsedMilliseconds < 5000)
-            {
-                i++;
-            }
-            stopwatch.Stop(); 
-            if (!Stop())
-            {
-                ping = (int)stopwatch.ElapsedMilliseconds;
-            }
-            else
-            {
-                //Console.WriteLine(poort + " ping timed out");
-            }
+        //public void Ping(int poort)
+        //{
+        //    stop = true;
+        //    Stopwatch stopwatch = new Stopwatch();
+        //    stopwatch.Start();
+        //    SendMessage(poort, eigenadres, "ping ping");
+        //    int i = 0;
+        //    while (Stop() && stopwatch.ElapsedMilliseconds < 5000)
+        //    {
+        //        i++;
+        //    }
+        //    stopwatch.Stop();
+        //    if (!Stop())
+        //    {
+        //        ping = (int)stopwatch.ElapsedMilliseconds;
+        //    }
+        //    else
+        //    {
+        //        //Console.WriteLine(poort + " ping timed out");
+        //    }
 
-        }
+        //}
         bool Stop()
         {
             lock (o)

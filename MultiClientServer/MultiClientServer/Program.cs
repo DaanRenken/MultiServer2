@@ -89,18 +89,18 @@ namespace MultiClientServer
                             }
                     }
                     {
-                        if (input.StartsWith("ping"))
-                        {
-                            int poort = int.Parse(input.Split()[1]);
-                            if (Buren.ContainsKey(poort))
-                            {
-                                Buren[poort].Ping(poort);
-                            }
-                            else
-                            {
-                                //Console.WriteLine("Poort onbekent!");
-                            }
-                        }
+                        //if (input.StartsWith("ping"))
+                        //{
+                        //    int poort = int.Parse(input.Split()[1]);
+                        //    if (Buren.ContainsKey(poort))
+                        //    {
+                        //        //Buren[poort].Ping(poort);
+                        //    }
+                        //    else
+                        //    {
+                        //        //Console.WriteLine("Poort onbekent!");
+                        //    }
+                        //}
                     }
                 }
                 catch
@@ -116,10 +116,10 @@ namespace MultiClientServer
             Connecties.Sort();
             foreach (int i in Connecties)
             {
-                Console.WriteLine(i + " " + Buren[i].ping + " " +Buren[i].favopoort);
+                Console.WriteLine(i + " " + Buren[i].ping + " " + Buren[i].favopoort);
             }
         }
-        public  static void AddConnection(Connection connection)
+        public static void AddConnection(Connection connection)
         {
             lock (o)
             {
@@ -151,7 +151,7 @@ namespace MultiClientServer
         }
         public static void RemoveConnection(int poort)
         {
-            lock(o)
+            lock (o)
             {
                 List<int> lijst = GetVirtualPorts(poort);
                 foreach (int port in lijst)
