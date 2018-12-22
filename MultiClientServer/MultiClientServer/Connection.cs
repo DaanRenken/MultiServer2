@@ -31,6 +31,15 @@ namespace MultiClientServer
             this.doeladres = poort;
             this.favopoort = poort;
             this.ping = 1;
+
+            if (eigenadres < favopoort)
+            {
+                o = int.Parse(eigenadres.ToString() + favopoort.ToString());
+            }
+            else
+            {
+                o = int.Parse(favopoort.ToString() + eigenadres.ToString());
+            }
             Write.WriteLine("Poort: " + eigenadres);
 
             // Start het reader-loopje
@@ -175,8 +184,7 @@ namespace MultiClientServer
         // Alle SendMessage functies sturen messages, sturen ze door of ontvangen ze en writen ze
         public void SendMessage(string message)
         {
-            object a = new object();
-            lock (a)
+            lock (o)
             {
                 message = doeladres + " " + message;
                 if (this.doeladres == favopoort)
