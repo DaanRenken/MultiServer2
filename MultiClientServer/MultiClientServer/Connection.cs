@@ -101,6 +101,7 @@ namespace MultiClientServer
                         {
                             //Console.WriteLine(message);
                             int poort = Int32.Parse(message.Split()[2]);
+
                             //if (this.doeladres == this.favopoort)
                             {
                                 // wanneer een verbinding wegvalt, wordt er eerst van uit gegaan dat die poort niet meer bereikbaar is
@@ -108,7 +109,7 @@ namespace MultiClientServer
                                 if (Program.Buren[poort].favopoort != Int32.Parse(message.Split()[3]))
                                 {
                                     SendDictionary(this, poort);
-                                }
+                            }
                                 else if (Program.Buren[poort].favopoort == this.favopoort)
                                 {
                                     Program.RemoveConnection(poort);
@@ -118,8 +119,8 @@ namespace MultiClientServer
                         // als het bericht niet voor deze poort is, wordt het doorgestuurd naar degene voor wie het wel bestemd is
                         else
                         {
-                            lock (o)
-                            {
+                            //lock (o)
+                            //{
                                 try
                                 {
                                     int voor = Int32.Parse(message.Split()[0]);
@@ -130,7 +131,7 @@ namespace MultiClientServer
                                 {
                                     Console.WriteLine(message);
                                 }
-                            }
+                            //}
                         }
                     }
                 }
@@ -139,21 +140,28 @@ namespace MultiClientServer
         }
 
         // UpdateDictionary voegt een nieuwe connection aan de dictionary toe, mocht deze nog niet bestaan
+        // er kan ook een al bestaande connection geupdate worden als de nieuwe beter is
         void UpdateDictionary(string input)
         {
             int poort = Int32.Parse(input.Split()[0]);
             int ping2 = Int32.Parse(input.Split()[1])+1;
-            if ((!Program.Buren.ContainsKey(poort) && poort != eigenadres))
+
+            object a = new object();
+            a = poort;
+            lock (a)
             {
-                Connection connection = new Connection(poort, this.favopoort, ping2);
-                Program.AddConnection(connection);
-            }
-            if (Program.Buren.ContainsKey(poort))
-            {
-                if (Program.Buren[poort].ping > ping2)
+                if ((!Program.Buren.ContainsKey(poort) && poort != eigenadres))
                 {
-                    //Console.WriteLine("start new connection" + this.doeladres + " " + this.favopoort + " " + this.ping + " " + poort);
-                    Program.UpdateConnection(poort, this.favopoort, ping2);
+                    Connection connection = new Connection(poort, this.favopoort, ping2);
+                    Program.AddConnection(connection);
+                }
+                if (Program.Buren.ContainsKey(poort))
+                {
+                    if (Program.Buren[poort].ping > ping2)
+                    {
+                        //Console.WriteLine("start new connection" + this.doeladres + " " + this.favopoort + " " + this.ping + " " + poort);
+                        Program.UpdateConnection(poort, this.favopoort, ping2);
+                    }
                 }
             }
         }

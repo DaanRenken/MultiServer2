@@ -25,6 +25,9 @@ namespace MultiClientServer
             {
                 MijnPoort = int.Parse(Console.ReadLine());
             }
+            // TEST
+            o = MijnPoort;
+
             new Server(MijnPoort);
             Console.Title = "NetChange " + MijnPoort.ToString();
 
@@ -131,7 +134,6 @@ namespace MultiClientServer
         }
 
         // Voeg andere poort in connection toe aan buren en update dictionary naar neighbors
-        // Wat heeft favopoort hier mee te maken?
         public static void AddConnection(Connection connection)
         {
             lock (o)
