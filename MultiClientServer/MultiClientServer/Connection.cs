@@ -131,11 +131,15 @@ namespace MultiClientServer
                             int voor = Int32.Parse(message.Split()[0]);
                             int naar = Program.Buren[voor].favopoort;
                             SendMessage(naar, message);
-                            Console.WriteLine("Bericht voor " + voor + " doorgestuurd naar " + naar);
+                            if (message.Split()[1] != "Dictionary")
+                            {
+                                Console.WriteLine("Bericht voor " + voor + " doorgestuurd naar " + naar);
+                                Console.WriteLine(message);
+                            }
                         }
                         catch
                         {
-                            Console.WriteLine(originalmessage);
+                            Console.WriteLine(message);
                         }
                         //}
                     }
