@@ -146,10 +146,10 @@ namespace MultiClientServer
             int poort = Int32.Parse(input.Split()[0]);
             int ping2 = Int32.Parse(input.Split()[1])+1;
 
-            object a = new object();
-            a = poort;
-            lock (a)
-            {
+            //object a = new object();
+            //a = poort;
+            //lock (a)
+            //{
                 if ((!Program.Buren.ContainsKey(poort) && poort != eigenadres))
                 {
                     Connection connection = new Connection(poort, this.favopoort, ping2);
@@ -163,30 +163,47 @@ namespace MultiClientServer
                         Program.UpdateConnection(poort, this.favopoort, ping2);
                     }
                 }
-            }
+            //}
         }
 
         // Alle SendMessage functies sturen messages, sturen ze door of ontvangen ze en writen ze
         public void SendMessage(string message)
         {
-            message = doeladres + " " + message;
-            if (this.doeladres == favopoort)
+            object a = new object();
+            a = doeladres;
+            lock (a)
             {
-                Write.WriteLine(message);
-            }
-            else
-            {
-                SendMessage(favopoort, message);
+                message = doeladres + " " + message;
+                if (this.doeladres == favopoort)
+                {
+                    Write.WriteLine(message);
+                }
+                else
+                {
+                    SendMessage(favopoort, message);
+                }
             }
         }
         public void SendMessage(int naarpoort, string message)
         {
-            Program.Buren[naarpoort].SendMessage(message);
+
+            object a = new object();
+            a = naarpoort;
+            lock (a)
+            {
+                Program.Buren[naarpoort].SendMessage(message);
+            }
         }
         public void SendMessage(int naarpoort, int vanpoort, string message)
         {
-            message = naarpoort + " " + message + " " + vanpoort;
-            SendMessage(naarpoort, message);
+
+            object a = new object();
+            a = naarpoort;
+            lock (a)
+            {
+                message = naarpoort + " " + message + " " + vanpoort;
+                SendMessage(naarpoort, message);
+            }
         }
 
         // Alle SendDictionary functies sturen de dictionary van de poort door naar hun neighbors, of printen een ontvangen dictionary
@@ -195,21 +212,36 @@ namespace MultiClientServer
             for (int i = 0; i < Program.Connecties.Count; i++)
             {
                 {
-                    SendDictionary(this, Program.Connecties[i]);
+                    object a = new object();
+                    a = Program.Connecties[i];
+                    lock (a)
+                    {
+                        SendDictionary(this, Program.Connecties[i]);
+                    }
                 }
             }
         }
         public void SendDictionary(Connection Neigbour, int connectie)
         {
-            string output = "Dictionary " + connectie + " " + Program.Buren[connectie].ping;
-            Neigbour.SendMessage(output);
+            object a = new object();
+            a = connectie;
+            lock (a)
+            {
+                string output = "Dictionary " + connectie + " " + Program.Buren[connectie].ping;
+                Neigbour.SendMessage(output);
+            }
         }
         public void SendDictionary(List<Connection> Neigbours, int connectie)
         {
 
             for (int i = 0; i < Neigbours.Count; i++)
             {
-                SendDictionary(Neigbours[i], connectie);
+                object a = new object();
+                a = connectie;
+                lock (a)
+                {
+                    SendDictionary(Neigbours[i], connectie);
+                }
             }
         }
     }
