@@ -125,11 +125,18 @@ namespace MultiClientServer
                         {
                             int voor = Int32.Parse(message.Split()[0]);
                             int naar = Program.Buren[voor].favopoort;
-                            SendMessage(naar, message);
-                            if (message.Split()[1] != "Dictionary")
+
+                            if (message.Split()[1] == "Dictionary" && message.Split()[4] == naar.ToString())
                             {
-                                Console.WriteLine("Bericht voor " + voor + " doorgestuurd naar " + naar);
-                                //Console.WriteLine(message);
+                                Program.RemoveConnection(naar);
+                            }
+                            else
+                            {
+                                SendMessage(naar, message);
+                                if (message.Split()[1] != "Dictionary")
+                                {
+                                    Console.WriteLine("Bericht voor " + voor + " doorgestuurd naar " + naar);
+                                }
                             }
                         }
                         catch
