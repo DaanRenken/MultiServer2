@@ -17,6 +17,7 @@ namespace MultiClientServer
         public List<Thread> threads = new List<Thread>();
         public int ping, eigenadres, doeladres, favopoort;
         object o = new object();
+        string originalmessage;
         // Connection heeft 2 constructoren: deze constructor wordt gebruikt als wij CLIENT worden bij een andere SERVER
         public Connection(int poort)
         {
@@ -71,6 +72,7 @@ namespace MultiClientServer
                 while (true)
                 {
                     string message = Read.ReadLine();
+                    originalmessage = message;
                     //Console.WriteLine("     "+message);
                     // als een bericht binnenkomt wat voor de eigen poort bedoeld is, wordt er gekeken wat de opdracht is
                     while (message.StartsWith(eigenadres.ToString()))
@@ -95,14 +97,14 @@ namespace MultiClientServer
                     // vanuit RemoveConnection wordt vervolgens "Removed Connection" naar alle buren gestuurd
                     else if (message.StartsWith("Remove Connection"))
                     {
-                        Console.WriteLine(message);
+                        //Console.WriteLine(message);
                         int poort = Int32.Parse(message.Split()[2]);
                         Program.RemoveConnection(poort);
                     }
                     // bij "Removed Connection" is er een connectie verdwenen en updaten alle buren hun dictionary en sturen die naar hun buren
                     else if (message.StartsWith("Removed Connection"))
                     {
-                        Console.WriteLine(message);
+                        //Console.WriteLine(message);
                         int poort = Int32.Parse(message.Split()[2]);
 
                         //if (this.doeladres == this.favopoort)
@@ -129,6 +131,7 @@ namespace MultiClientServer
                             int voor = Int32.Parse(message.Split()[0]);
                             int naar = Program.Buren[voor].favopoort;
                             SendMessage(naar, message);
+                            Console.WriteLine("Bericht voor " + voor + " doorgestuurd naar " + naar);
                         }
                         catch
                         {
@@ -148,9 +151,9 @@ namespace MultiClientServer
             int poort = Int32.Parse(input.Split()[0]);
             int ping2 = Int32.Parse(input.Split()[1]) + 1;
 
-            object a = new object();
-            a = poort;
-            lock (a)
+            //object a = new object();
+            //a = poort;
+            //lock (a)
             {
                 if ((!Program.Buren.ContainsKey(poort) && poort != eigenadres))
                 {
@@ -161,7 +164,9 @@ namespace MultiClientServer
                 {
                     if (Program.Buren[poort].ping > ping2 && this.doeladres == this.favopoort)
                     {
-                        //Console.WriteLine("start new connection" + this.doeladres + " " + this.favopoort + " " + this.ping + " " + poort);
+                        Console.WriteLine(input + " " + originalmessage);
+                        
+                        Console.WriteLine("start new connection" + this.doeladres + " " + this.favopoort + " " + this.ping + " " + ping2 + " " + poort);
                         Program.UpdateConnection(poort, this.favopoort, ping2);
                     }
                 }
@@ -171,15 +176,19 @@ namespace MultiClientServer
         // Alle SendMessage functies sturen messages, sturen ze door of ontvangen ze en writen ze
         public void SendMessage(string message)
         {
-            message = doeladres + " " + message;
-            if (this.doeladres == favopoort)
+            object a = new object();
+            lock (a)
             {
-                //Console.WriteLine("         " + message);
-                Write.WriteLine(message);
-            }
-            else
-            {
-                SendMessage(favopoort, message);
+                message = doeladres + " " + message;
+                if (this.doeladres == favopoort)
+                {
+                    //Console.WriteLine("         " + message);
+                    Write.WriteLine(message);
+                }
+                else
+                {
+                    SendMessage(favopoort, message);
+                }
             }
         }
         public void SendMessage(int naarpoort, string message)
@@ -204,7 +213,8 @@ namespace MultiClientServer
         }
         public void SendDictionary(Connection Neigbour, int connectie)
         {
-            string output = "Dictionary " + connectie + " " + Program.Buren[connectie].ping;
+            string output = "Dictionary " + connectie + " " + (Program.Buren[connectie].ping);
+            Console.WriteLine(this.doeladres + "     " + output);
             Neigbour.SendMessage(output);
         }
         public void SendDictionary(List<Connection> Neigbours, int connectie)

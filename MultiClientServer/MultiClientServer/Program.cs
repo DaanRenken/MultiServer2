@@ -76,17 +76,24 @@ namespace MultiClientServer
                         case "B":
                             {
                                 input = input.Substring(input.IndexOf(" ") + 1);
+
                                 int poort = Int32.Parse(input.Split()[0]);
                                 if (Connecties.Contains(poort))
                                 {
-                                    Buren[poort].SendMessage(input.Substring(input.IndexOf(" ") + 1));
-                                    break;
+                                    if (Connecties.Contains(poort))
+                                    {
+                                        Buren[poort].SendMessage(input.Substring(input.IndexOf(" ") + 1));
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("Poort " + poort + " is niet bekend");
+                                    }
                                 }
                                 else
                                 {
                                     Console.WriteLine("Poort " + poort + " is niet bekend");
-                                    break;
                                 }
+                                break;
                             }
                         // C: connect met poort
                         case "C":
@@ -102,15 +109,21 @@ namespace MultiClientServer
                                 int poort = int.Parse(input.Split()[1]);
                                 if (Connecties.Contains(poort))
                                 {
-                                    Buren[poort].SendMessage("Remove Connection " + MijnPoort);
-                                    RemoveConnection(poort);
-                                    break;
+                                    if (Connecties.Contains(poort))
+                                    {
+                                        Buren[poort].SendMessage("Remove Connection " + MijnPoort);
+                                        RemoveConnection(poort);
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("Poort " + poort + " is niet bekend");
+                                    }
                                 }
                                 else
                                 {
                                     Console.WriteLine("Poort " + poort + " is niet bekend");
-                                    break;
                                 }
+                                break;
                             }
                     }
                 }
@@ -157,7 +170,7 @@ namespace MultiClientServer
                     //connection.Ping(poort);
                     if (connection.doeladres == connection.favopoort)
                     {
-                        Console.WriteLine("Verbonden: " + poort);
+                        Console.WriteLine("Verbonden: " + poort + " ping "+ connection.ping);
                     }
                 }
                 connection.SendDictionary();
@@ -166,7 +179,7 @@ namespace MultiClientServer
         }
         public static void UpdateConnection(int poort, int favopoort, int ping)
         {
-            Console.WriteLine("updating poort" + poort);
+            Console.WriteLine("Afstand naar " + poort + " is nu " + ping + " via " + favopoort);
             Connection connection = Buren[poort];
             connection.favopoort = favopoort;
             connection.ping = ping;
@@ -182,10 +195,20 @@ namespace MultiClientServer
                 List<int> lijst = GetVirtualPorts(poort);
                 foreach (int port in lijst)
                 {
-                    Console.WriteLine("Removing 2 poort" + port);
+                    Connection connection = Buren[port];
+                    //Console.WriteLine("Removing 2 poort" + port);
                     Connecties.Remove(port);
                     Buren.Remove(port);
+                    if (connection.doeladres == connection.favopoort)
+                    {
+                        Console.WriteLine("Verbroken: " + port);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Onbereikbaar: " + port);
+                    }
                 }
+
             }
         }
 
@@ -196,7 +219,8 @@ namespace MultiClientServer
                 List<int> lijst = GetVirtualPorts(poort);
                 foreach (int port in lijst)
                 {
-                    Console.WriteLine("Removing 1 poort" + port);
+                    //Console.WriteLine("Removing 1 poort" + port);
+                    Connection connection = Buren[port];
                     Connecties.Remove(port);
                     Buren.Remove(port);
                     try
@@ -208,6 +232,15 @@ namespace MultiClientServer
                         }
                     }
                     catch { }
+                    if (connection.doeladres == connection.favopoort)
+                    {
+                        Console.WriteLine("Verbroken: " + port);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Onbereikbaar: " + port);
+                    }
+
                 }
             }
 
