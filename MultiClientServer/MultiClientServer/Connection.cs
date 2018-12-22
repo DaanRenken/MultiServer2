@@ -73,7 +73,6 @@ namespace MultiClientServer
                 {
                     string message = Read.ReadLine();
                     originalmessage = message;
-                    //Console.WriteLine("     "+message);
                     // als een bericht binnenkomt wat voor de eigen poort bedoeld is, wordt er gekeken wat de opdracht is
                     while (message.StartsWith(eigenadres.ToString()))
                     {
@@ -97,7 +96,6 @@ namespace MultiClientServer
                     // vanuit RemoveConnection wordt vervolgens "Removed Connection" naar alle buren gestuurd
                     else if (message.StartsWith("Remove Connection"))
                     {
-                        //Console.WriteLine(message);
                         int poort = Int32.Parse(message.Split()[2]);
                         Program.RemoveConnection(poort);
                     }
@@ -107,7 +105,6 @@ namespace MultiClientServer
                         //Console.WriteLine(message);
                         int poort = Int32.Parse(message.Split()[2]);
 
-                        //if (this.doeladres == this.favopoort)
                         {
                             // wanneer een verbinding wegvalt, wordt er eerst van uit gegaan dat die poort niet meer bereikbaar is
                             // als nou later blijkt dat die toch nog te bereiken is, wordt er via de dictionary rondgestuurd dat er toch nog een verbinding mogelijk is
@@ -124,8 +121,6 @@ namespace MultiClientServer
                     // als het bericht niet voor deze poort is, wordt het doorgestuurd naar degene voor wie het wel bestemd is
                     else
                     {
-                        //lock (o)
-                        //{
                         try
                         {
                             int voor = Int32.Parse(message.Split()[0]);
@@ -134,14 +129,13 @@ namespace MultiClientServer
                             if (message.Split()[1] != "Dictionary")
                             {
                                 Console.WriteLine("Bericht voor " + voor + " doorgestuurd naar " + naar);
-                                Console.WriteLine(message);
+                                //Console.WriteLine(message);
                             }
                         }
                         catch
                         {
                             Console.WriteLine(message);
                         }
-                        //}
                     }
                 }
             }
@@ -156,9 +150,6 @@ namespace MultiClientServer
             int poort2 = Int32.Parse(input.Split()[2]);
             int ping2 = Int32.Parse(input.Split()[1]) + Program.Buren[poort2].ping;
 
-            //object a = new object();
-            //a = poort;
-            //lock (a)
             {
                 if ((!Program.Buren.ContainsKey(poort) && poort != eigenadres))
                 {
@@ -169,9 +160,6 @@ namespace MultiClientServer
                 {
                     if (Program.Buren[poort].ping > ping2)
                     {
-                        //Console.WriteLine(input + " " + originalmessage);
-                        
-                        //Console.WriteLine("start new connection" + this.doeladres + " " + this.favopoort + " " + this.ping + " " + ping2 + " " + poort);
                         Program.UpdateConnection(poort, this.favopoort, ping2);
                     }
                 }
@@ -186,7 +174,6 @@ namespace MultiClientServer
                 message = doeladres + " " + message;
                 if (this.doeladres == favopoort)
                 {
-                    //Console.WriteLine("         " + message);
                     Write.WriteLine(message);
                 }
                 else
@@ -218,7 +205,6 @@ namespace MultiClientServer
         public void SendDictionary(Connection Neigbour, int connectie)
         {
             string output = "Dictionary " + connectie + " " + (Program.Buren[connectie].ping) + " " + eigenadres;
-            //Console.WriteLine(this.doeladres + "     " + output);
             Neigbour.SendMessage(output);
         }
         public void SendDictionary(List<Connection> Neigbours, int connectie)

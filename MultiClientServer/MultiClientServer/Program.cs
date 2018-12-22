@@ -37,20 +37,13 @@ namespace MultiClientServer
                 {
                     int newPoort = int.Parse(args[i]);
                     bool connectSucceed = false;
-                    //while (!connectSucceed)
+                    while (!connectSucceed)
                     {
                         System.Threading.Thread.Sleep(50);
                         try
                         {
-                            //if (Buren.ContainsKey(newPoort)) {
-                            //    //Console.WriteLine("Hier is al verbinding naar! (cmdInput)");
-                            //}
-                            //else
-                            //{
-                            // Leg verbinding aan (als client)
                             Connection connection = new Connection(newPoort);
                             AddConnection(connection);
-                            //}
                             connectSucceed = true;
                             Console.WriteLine("Verbonden: " + newPoort);
                         }
@@ -128,9 +121,7 @@ namespace MultiClientServer
                     }
                 }
                 catch
-                {
-                    //Console.WriteLine("Foute input, probeer het nog eens");
-                }
+                { }
             }
 
         }
@@ -155,23 +146,15 @@ namespace MultiClientServer
                 if (Buren.ContainsKey(poort))
                 {
                     if (Buren[poort].doeladres != Buren[poort].favopoort && connection.doeladres == connection.favopoort)
-                    //if (Buren[poort].ping < connection.ping)
-                    {
-                        Buren[poort] = connection;
+                    {   Buren[poort] = connection;
                         Console.WriteLine("Verbonden: " + poort);
                     }
-                    //Console.WriteLine("Hier is al verbinding naar!");
                 }
                 else if (poort != MijnPoort)
                 {
                     // Leg verbinding aan (als client)
                     Buren.Add(poort, connection);
                     Connecties.Add(poort);
-                    //connection.Ping(poort);
-                    if (connection.doeladres == connection.favopoort)
-                    {
-                        //Console.WriteLine("Verbonden: " + poort + " ping "+ connection.ping);
-                    }
                 }
                 connection.SendDictionary();
                 connection.SendDictionary(GetNeigbours(), poort);
@@ -196,7 +179,6 @@ namespace MultiClientServer
                 foreach (int port in lijst)
                 {
                     Connection connection = Buren[port];
-                    //Console.WriteLine("Removing 2 poort" + port);
                     Connecties.Remove(port);
                     Buren.Remove(port);
                     if (connection.doeladres == connection.favopoort)
@@ -219,7 +201,6 @@ namespace MultiClientServer
                 List<int> lijst = GetVirtualPorts(poort);
                 foreach (int port in lijst)
                 {
-                    //Console.WriteLine("Removing 1 poort" + port);
                     Connection connection = Buren[port];
                     Connecties.Remove(port);
                     Buren.Remove(port);
@@ -243,43 +224,6 @@ namespace MultiClientServer
 
                 }
             }
-
-            //lock (o)
-            //{
-
-            //    List<int> lijst = GetVirtualPorts(poort);
-            //    foreach (int port in lijst)
-            //    {
-            //        Console.WriteLine("             " + port + " Removed Connection");
-            //        Connection connection = Buren[port];
-            //        try
-            //        {
-            //            connection.SendMessage("Removed Connection " + MijnPoort);
-            //        }
-            //        catch { }
-            //        //Console.WriteLine("Remove Connection " + MijnPoort + "DEBUG");
-            //        Connecties.Remove(port);
-            //        Buren.Remove(port);
-            //        try
-            //        {
-            //            List<Connection> neigbours = GetNeigbours();
-            //            foreach (Connection i in neigbours)
-            //            {
-            //                i.SendMessage("Removed Connection " + port + " " + MijnPoort);
-            //                //Console.WriteLine("Removed Connection " + port + " " + MijnPoort + "DEBUG");
-            //            }
-            //            if (connection.doeladres == connection.favopoort)
-            //            {
-            //                Console.WriteLine("Verbroken: " + port);
-            //            }
-            //            else
-            //            {
-            //                Console.WriteLine("Onbereikbaar: " + port);
-            //            }
-            //        }
-            //        catch { }
-            //    }
-            //}
         }
         public static List<Connection> GetNeigbours()
         {
