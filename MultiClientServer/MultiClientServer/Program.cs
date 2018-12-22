@@ -129,7 +129,7 @@ namespace MultiClientServer
                 }
                 catch
                 {
-                    Console.WriteLine("Foute input, probeer het nog eens");
+                    //Console.WriteLine("Foute input, probeer het nog eens");
                 }
             }
 
@@ -170,7 +170,7 @@ namespace MultiClientServer
                     //connection.Ping(poort);
                     if (connection.doeladres == connection.favopoort)
                     {
-                        Console.WriteLine("Verbonden: " + poort + " ping "+ connection.ping);
+                        //Console.WriteLine("Verbonden: " + poort + " ping "+ connection.ping);
                     }
                 }
                 connection.SendDictionary();

@@ -135,7 +135,7 @@ namespace MultiClientServer
                         }
                         catch
                         {
-                            Console.WriteLine(message);
+                            Console.WriteLine(originalmessage);
                         }
                         //}
                     }
@@ -146,10 +146,11 @@ namespace MultiClientServer
 
         // UpdateDictionary voegt een nieuwe connection aan de dictionary toe, mocht deze nog niet bestaan
         // er kan ook een al bestaande connection geupdate worden als de nieuwe beter is
-        void UpdateDictionary(string input)
+        public void UpdateDictionary(string input)
         {
             int poort = Int32.Parse(input.Split()[0]);
-            int ping2 = Int32.Parse(input.Split()[1]) + 1;
+            int poort2 = Int32.Parse(input.Split()[2]);
+            int ping2 = Int32.Parse(input.Split()[1]) + Program.Buren[poort2].ping;
 
             //object a = new object();
             //a = poort;
@@ -162,17 +163,16 @@ namespace MultiClientServer
                 }
                 else if (Program.Buren.ContainsKey(poort))
                 {
-                    if (Program.Buren[poort].ping > ping2 && this.doeladres == this.favopoort)
+                    if (Program.Buren[poort].ping > ping2)
                     {
-                        Console.WriteLine(input + " " + originalmessage);
+                        //Console.WriteLine(input + " " + originalmessage);
                         
-                        Console.WriteLine("start new connection" + this.doeladres + " " + this.favopoort + " " + this.ping + " " + ping2 + " " + poort);
+                        //Console.WriteLine("start new connection" + this.doeladres + " " + this.favopoort + " " + this.ping + " " + ping2 + " " + poort);
                         Program.UpdateConnection(poort, this.favopoort, ping2);
                     }
                 }
             }
         }
-
         // Alle SendMessage functies sturen messages, sturen ze door of ontvangen ze en writen ze
         public void SendMessage(string message)
         {
@@ -213,8 +213,8 @@ namespace MultiClientServer
         }
         public void SendDictionary(Connection Neigbour, int connectie)
         {
-            string output = "Dictionary " + connectie + " " + (Program.Buren[connectie].ping);
-            Console.WriteLine(this.doeladres + "     " + output);
+            string output = "Dictionary " + connectie + " " + (Program.Buren[connectie].ping) + " " + eigenadres;
+            //Console.WriteLine(this.doeladres + "     " + output);
             Neigbour.SendMessage(output);
         }
         public void SendDictionary(List<Connection> Neigbours, int connectie)
