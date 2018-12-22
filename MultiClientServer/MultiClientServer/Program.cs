@@ -47,9 +47,9 @@ namespace MultiClientServer
                             //}
                             //else
                             //{
-                                // Leg verbinding aan (als client)
-                                Connection connection = new Connection(newPoort);
-                                AddConnection(connection);
+                            // Leg verbinding aan (als client)
+                            Connection connection = new Connection(newPoort);
+                            AddConnection(connection);
                             //}
                             connectSucceed = true;
                             Console.WriteLine("Verbonden: " + newPoort);
@@ -142,7 +142,7 @@ namespace MultiClientServer
                 if (Buren.ContainsKey(poort))
                 {
                     if (Buren[poort].doeladres != Buren[poort].favopoort && connection.doeladres == connection.favopoort)
-                        //if (Buren[poort].ping < connection.ping)
+                    //if (Buren[poort].ping < connection.ping)
                     {
                         Buren[poort] = connection;
                         Console.WriteLine("Verbonden: " + poort);
@@ -166,6 +166,7 @@ namespace MultiClientServer
         }
         public static void UpdateConnection(int poort, int favopoort, int ping)
         {
+            Console.WriteLine("updating poort" + poort);
             Connection connection = Buren[poort];
             connection.favopoort = favopoort;
             connection.ping = ping;
@@ -174,6 +175,20 @@ namespace MultiClientServer
         }
 
         // verwijdert een hele poort (?) uit het systeem en update aan alle betreffenden (buren eigen poort + buren verwijderde poort) nieuwe dictionary
+        public static void RemoveConnection2(int poort)
+        {
+            lock (o)
+            {
+                List<int> lijst = GetVirtualPorts(poort);
+                foreach (int port in lijst)
+                {
+                    Console.WriteLine("Removing 2 poort" + port);
+                    Connecties.Remove(port);
+                    Buren.Remove(port);
+                }
+            }
+        }
+
         public static void RemoveConnection(int poort)
         {
             lock (o)
@@ -181,35 +196,57 @@ namespace MultiClientServer
                 List<int> lijst = GetVirtualPorts(poort);
                 foreach (int port in lijst)
                 {
-                    Connection connection = Buren[port];
-                    try
-                    {
-                        connection.SendMessage("Removed Connection " + MijnPoort);
-                    }
-                    catch { }
-                    //Console.WriteLine("Remove Connection " + MijnPoort + "DEBUG");
-                    Connecties.Remove(connection.doeladres);
-                    Buren.Remove(connection.doeladres);
+                    Console.WriteLine("Removing 1 poort" + port);
+                    Connecties.Remove(port);
+                    Buren.Remove(port);
                     try
                     {
                         List<Connection> neigbours = GetNeigbours();
                         foreach (Connection i in neigbours)
                         {
                             i.SendMessage("Removed Connection " + port + " " + MijnPoort);
-                            //Console.WriteLine("Removed Connection " + port + " " + MijnPoort + "DEBUG");
-                        }
-                        if (connection.doeladres == connection.favopoort)
-                        {
-                            Console.WriteLine("Verbroken: " + port);
-                        }
-                        else
-                        {
-                            Console.WriteLine("Onbereikbaar: " + port);
                         }
                     }
                     catch { }
                 }
             }
+
+            //lock (o)
+            //{
+
+            //    List<int> lijst = GetVirtualPorts(poort);
+            //    foreach (int port in lijst)
+            //    {
+            //        Console.WriteLine("             " + port + " Removed Connection");
+            //        Connection connection = Buren[port];
+            //        try
+            //        {
+            //            connection.SendMessage("Removed Connection " + MijnPoort);
+            //        }
+            //        catch { }
+            //        //Console.WriteLine("Remove Connection " + MijnPoort + "DEBUG");
+            //        Connecties.Remove(port);
+            //        Buren.Remove(port);
+            //        try
+            //        {
+            //            List<Connection> neigbours = GetNeigbours();
+            //            foreach (Connection i in neigbours)
+            //            {
+            //                i.SendMessage("Removed Connection " + port + " " + MijnPoort);
+            //                //Console.WriteLine("Removed Connection " + port + " " + MijnPoort + "DEBUG");
+            //            }
+            //            if (connection.doeladres == connection.favopoort)
+            //            {
+            //                Console.WriteLine("Verbroken: " + port);
+            //            }
+            //            else
+            //            {
+            //                Console.WriteLine("Onbereikbaar: " + port);
+            //            }
+            //        }
+            //        catch { }
+            //    }
+            //}
         }
         public static List<Connection> GetNeigbours()
         {
@@ -217,7 +254,7 @@ namespace MultiClientServer
             foreach (int i in Connecties)
             {
                 Connection connectie = Program.Buren[i];
-                if (connectie.doeladres == connectie.favopoort)
+                //if (connectie.doeladres == connectie.favopoort)
                 {
                     neigbours.Add(connectie);
                 }
@@ -227,17 +264,15 @@ namespace MultiClientServer
         public static List<int> GetVirtualPorts(int poort)
         {
             List<int> output = new List<int>();
+            output.Add(poort);
             foreach (int i in Connecties)
             {
-                if (Buren[i].favopoort == poort)
+                if (Buren[i].favopoort == poort && !output.Contains(i))
                 {
                     output.Add(i);
                 }
             }
-            if (!output.Contains(poort))
-            {
-                output.Add(poort);
-            }
+
             return output;
         }
     }
