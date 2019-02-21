@@ -37,9 +37,9 @@ namespace MultiClientServer
 
                 // Zet de nieuwe verbinding in de verbindingslijst
                 Connection connection = new Connection(clientIn, clientOut);
-                Program.Buren.Add(zijnPoort,connection);
-                connection.ping = connection.Ping(zijnPoort);
-                Program.Connecties.Add(zijnPoort);
+                Program.AddConnection(zijnPoort,connection);
+                //connection.ping = connection.Ping(zijnPoort);
+
             }
         }
     }

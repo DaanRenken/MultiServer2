@@ -14,9 +14,6 @@ namespace MultiClientServer
     {
         public StreamReader Read;
         public StreamWriter Write;
-        public List<Thread> threads = new List<Thread>();
-        public int ping;
-        private bool stop;
         object o = new object();
         // Connection heeft 2 constructoren: deze constructor wordt gebruikt als wij CLIENT worden bij een andere SERVER
         public Connection(int port)
@@ -31,7 +28,6 @@ namespace MultiClientServer
             
             // Start het reader-loopje
             Thread thread = new Thread(ReaderThread);
-            threads.Add(thread);
             thread.Start();
         }
 
@@ -42,7 +38,6 @@ namespace MultiClientServer
 
             // Start het reader-loopje
             Thread thread = new Thread(ReaderThread);
-            threads.Add(thread);
             thread.Start();         
         }
 
@@ -57,43 +52,17 @@ namespace MultiClientServer
                 {
                     string message = Read.ReadLine();
                     Console.WriteLine(message);
-                    if (message.StartsWith("ping ping"))
-                    {
-                        Program.Buren[Int32.Parse(message.Split()[2])].Write.WriteLine("ping pong");
-                    }
-                    else if (message.StartsWith("ping pong"))
-                    {
-                        lock (o)
-                        {
-                            stop = false;
-                        }
-                    }
                 }
             }
             catch { } // Verbinding is kennelijk verbroken
         }
-        public int Ping(int poort)
-        {
-            stop = true;
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
-            Program.Buren[poort].Write.WriteLine("ping ping " + Program.MijnPoort);
-            while (Stop())
-            {
-            }
-            stopwatch.Stop();
-            return (int)stopwatch.ElapsedMilliseconds;
-        }
-        bool Stop()
-        {
-            lock (o)
-            {
-                return stop;
-            }
-        }
-        public void print()
+        public void Print()
         {
             Console.WriteLine(Program.Connecties.ToString());
+        }
+        public void SendMessage(string message)
+        {
+            Write.WriteLine(message);
         }
     }
 }
