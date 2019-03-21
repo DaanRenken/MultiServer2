@@ -7,22 +7,45 @@ namespace MultiClientServer
 {
     class RoutingTable
     {
-        List<Node> myRoutingTable = new List<Node>();
-
+        Dictionary<int, List<Node>> connections = new Dictionary<int, List<Node>>();
         public RoutingTable()
         {
 
         }
 
-        public void AddNode(int poort, int distance, int prefneighbor)
+        public void AddConnection(int poort, Node node)
         {
-            Node node = new Node(poort, distance, prefneighbor);
-            myRoutingTable.Add(node);
+            if (connections.ContainsKey(poort))
+            {
+                connections[poort].Add(node);
+            }
+            else
+            {
+                connections.Add(poort, new List<Node>());
+                AddConnection(poort, node);
+            }
         }
 
-        public void UpdateNode(int poort, int distance, int prefneighbor)
+        public void RemoveConnection(int poort, Node node)
         {
-            myRoutingTable.Find(Node node.poort == poort).Update(poort, distance, prefneighbor);
+            if (connections.ContainsKey(poort) && connections[poort].Contains(node))
+            {
+                connections[poort].Remove(node);
+                if (connections[poort].Count == 0)
+                {
+                    connections.Remove(poort);
+                }
+            }
+            else
+            {
+
+            }
+        }
+
+        public Node GetNode(int poort)
+        {
+            connections[poort].Sort();
+            return connections[poort][0];
         }
 
     }
