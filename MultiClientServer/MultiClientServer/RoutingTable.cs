@@ -15,7 +15,7 @@ namespace MultiClientServer
 
         public void AddConnection(int poort, Node node)
         {
-            if (connections.ContainsKey(poort))
+            if (connections.ContainsKey(poort) && !connections[poort].Contains(node))
             {
                 connections[poort].Add(node);
             }
@@ -44,8 +44,15 @@ namespace MultiClientServer
 
         public Node GetNode(int poort)
         {
-            connections[poort].Sort();
-            return connections[poort][0];
+            if (connections.ContainsKey(poort))
+            {
+                connections[poort].Sort();
+                return connections[poort][0];
+            }
+            else
+            {
+                return null;
+            }
         }
 
     }
