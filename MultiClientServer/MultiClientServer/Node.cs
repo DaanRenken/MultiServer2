@@ -11,6 +11,13 @@ namespace MultiClientServer
         int distance;
         int prefneighbor;
 
+        public Node(int inputPoort, int inputDistance, int inputNeighbor)
+        {
+            poort = inputPoort;
+            distance = inputDistance;
+            prefneighbor = inputNeighbor;
+        }
+
         public int ReturnPoort() { return poort; }
         public int ReturnDistance() { return distance; }
         public int ReturnNeighbor() { return prefneighbor; }
