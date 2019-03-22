@@ -11,11 +11,11 @@ namespace MultiClientServer
         int distance;
         int prefneighbor;
 
-        int ReturnPoort() { return poort; }
-        int ReturnDistance() { return distance; }
-        int ReturnNeighbor() { return prefneighbor; }
+        public int ReturnPoort() { return poort; }
+        public int ReturnDistance() { return distance; }
+        public int ReturnNeighbor() { return prefneighbor; }
 
-        void Update(int newPoort, int newDistance, int newNeighbor)
+        public void Update(int newPoort, int newDistance, int newNeighbor)
         {
             if ((poort == newPoort) && (newDistance < distance))
             {
