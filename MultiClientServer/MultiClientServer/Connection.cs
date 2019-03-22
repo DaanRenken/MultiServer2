@@ -60,9 +60,5 @@ namespace MultiClientServer
         {
             Console.WriteLine(Program.Connecties.ToString());
         }
-        public void SendMessage(string message)
-        {
-            Write.WriteLine(message);
-        }
     }
 }

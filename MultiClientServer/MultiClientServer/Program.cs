@@ -9,8 +9,9 @@ namespace MultiClientServer
     {
         static public int MijnPoort;
 
-        static public Dictionary<int, Connection> Buren = new Dictionary<int, Connection>();
         static public List<int> Connecties = new List<int>();
+        static RoutingTable routingtable = new RoutingTable();
+
         static void Main(string[] args)
         {
             bool cmdInput = (args.Length != 0);
@@ -38,7 +39,8 @@ namespace MultiClientServer
                         try
                         {
                             Connection connection = new Connection(newPoort);
-                            AddConnection(newPoort, connection);
+                            //AddConnection(newPoort, connection);
+
                             connectSucceed = true;
                             Console.WriteLine("Verbonden: " + newPoort);
                         }
@@ -70,7 +72,7 @@ namespace MultiClientServer
                                 {
                                     if (Connecties.Contains(poort))
                                     {
-                                        Buren[poort].SendMessage(input.Substring(input.IndexOf(" ") + 1));
+                                        //Buren[poort].SendMessage(input.Substring(input.IndexOf(" ") + 1));
                                     }
                                     else
                                     {
@@ -88,7 +90,7 @@ namespace MultiClientServer
                             {
                                 int poort = int.Parse(input.Split()[1]);
                                 Connection connection = new Connection(poort);
-                                AddConnection(poort, connection);
+                                //AddConnection(poort, connection);
                                 break;
                             }
                         // D: destroy verbinding met poort
@@ -119,11 +121,6 @@ namespace MultiClientServer
                 { }
             }
 
-        }
-        public static void AddConnection(int poort, Connection connection)
-        {
-            Buren.Add(poort, connection);
-            Connecties.Add(poort);
         }
 
         static void Print()
