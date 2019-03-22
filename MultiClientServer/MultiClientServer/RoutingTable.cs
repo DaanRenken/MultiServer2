@@ -42,7 +42,7 @@ namespace MultiClientServer
         {
             if (connections.ContainsKey(poort))
             {
-                connections[poort].Sort();
+                connections[poort].OrderBy(x => x.ReturnDistance()).ToList<Node>();
                 return connections[poort][0];
             }
             else
@@ -50,6 +50,5 @@ namespace MultiClientServer
                 return null;
             }
         }
-
     }
 }
