@@ -8,10 +8,6 @@ namespace MultiClientServer
     class RoutingTable
     {
         Dictionary<int, List<Node>> connections = new Dictionary<int, List<Node>>();
-        public RoutingTable()
-        {
-
-        }
 
         public void AddConnection(int poort, Node node)
         {

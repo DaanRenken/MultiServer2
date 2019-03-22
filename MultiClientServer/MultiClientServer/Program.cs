@@ -8,8 +8,6 @@ namespace MultiClientServer
     class Program
     {
         static public int MijnPoort;
-        
-        public RoutingTable myRoutingTable = new RoutingTable();
 
         static public Dictionary<int, Connection> Buren = new Dictionary<int, Connection>();
         static public List<int> Connecties = new List<int>();
@@ -91,7 +89,6 @@ namespace MultiClientServer
                                 int poort = int.Parse(input.Split()[1]);
                                 Connection connection = new Connection(poort);
                                 AddConnection(poort, connection);
-                                myRoutingTable.AddNode(poort, 1, poort);
                                 break;
                             }
                         // D: destroy verbinding met poort
