@@ -39,7 +39,7 @@ namespace MultiClientServer
                         {
                             //Connection connection = new Connection(newPoort);
                             //AddConnection(newPoort, connection);
-                            routingtable.AddConnection(newPoort, new Node(newPoort, 0, newPoort));
+                            routingtable.AddConnection(newPoort, new Node(newPoort, 1, newPoort));
                             connectSucceed = true;
                             Console.WriteLine("Verbonden: " + newPoort);
                         }
