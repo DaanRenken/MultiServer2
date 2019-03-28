@@ -130,6 +130,10 @@ namespace MultiClientServer
                 Console.WriteLine(tempnode.ReturnPoort() + " " + tempnode.ReturnDistance() + " " + tempnode.ReturnNeighbor());
             }
         }
+
+        public static void AddConnection(int newPoort) {
+            routingtable.AddConnection(newPoort, new Node(newPoort, 0, newPoort));
+        }
     }
 }
 
