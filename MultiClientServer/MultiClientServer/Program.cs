@@ -9,8 +9,7 @@ namespace MultiClientServer
     {
         static public int MijnPoort;
 
-        static public List<int> Connecties = new List<int>();
-        static RoutingTable routingtable = new RoutingTable();
+        static RoutingTable routingtable;
 
         static void Main(string[] args)
         {
@@ -26,7 +25,7 @@ namespace MultiClientServer
 
             new Server(MijnPoort);
             Console.Title = "NetChange " + MijnPoort.ToString();
-
+            routingtable = new RoutingTable(MijnPoort, new Node(MijnPoort, 0, MijnPoort));
             if (cmdInput)
             {
                 for (int i = 1; i < args.Length; i++)
@@ -38,9 +37,9 @@ namespace MultiClientServer
                         System.Threading.Thread.Sleep(50);
                         try
                         {
-                            Connection connection = new Connection(newPoort);
+                            //Connection connection = new Connection(newPoort);
                             //AddConnection(newPoort, connection);
-
+                            routingtable.AddConnection(newPoort, new Node(newPoort, 0, newPoort));
                             connectSucceed = true;
                             Console.WriteLine("Verbonden: " + newPoort);
                         }
@@ -68,9 +67,9 @@ namespace MultiClientServer
                                 input = input.Substring(input.IndexOf(" ") + 1);
 
                                 int poort = Int32.Parse(input.Split()[0]);
-                                if (Connecties.Contains(poort))
+                                if (routingtable.containskey(poort))
                                 {
-                                    if (Connecties.Contains(poort))
+                                    if (routingtable.containskey(poort))
                                     {
                                         //Buren[poort].SendMessage(input.Substring(input.IndexOf(" ") + 1));
                                     }
@@ -89,17 +88,16 @@ namespace MultiClientServer
                         case "C":
                             {
                                 int poort = int.Parse(input.Split()[1]);
-                                Connection connection = new Connection(poort);
-                                //AddConnection(poort, connection);
+                                routingtable.AddConnection(poort, new Node(poort, 0, poort));
                                 break;
                             }
                         // D: destroy verbinding met poort
                         case "D":
                             {
                                 int poort = int.Parse(input.Split()[1]);
-                                if (Connecties.Contains(poort))
+                                if (routingtable.containskey(poort))
                                 {
-                                    if (Connecties.Contains(poort))
+                                    if (routingtable.containskey(poort))
                                     {
                                         //Buren[poort].SendMessage("Remove Connection " + MijnPoort);
                                         //RemoveConnection(poort);
@@ -125,11 +123,11 @@ namespace MultiClientServer
 
         static void Print()
         {
-            Console.WriteLine(MijnPoort + " 0 Local");
-            Connecties.Sort();
-            foreach (int i in Connecties)
+            int[] connecties = routingtable.GetConnections();
+            foreach (int i in connecties)
             {
-                Console.WriteLine(i);// + " " + Buren[i].ping + " " + Buren[i].favopoort);
+                Node tempnode = routingtable.GetNode(i);
+                Console.WriteLine(tempnode.ReturnPoort() + " " + tempnode.ReturnDistance() + " " + tempnode.ReturnNeighbor());
             }
         }
     }

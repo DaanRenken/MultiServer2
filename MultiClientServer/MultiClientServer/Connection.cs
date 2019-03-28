@@ -56,9 +56,5 @@ namespace MultiClientServer
             }
             catch { } // Verbinding is kennelijk verbroken
         }
-        public void Print()
-        {
-            Console.WriteLine(Program.Connecties.ToString());
-        }
     }
 }

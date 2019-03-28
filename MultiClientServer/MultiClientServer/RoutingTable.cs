@@ -9,6 +9,11 @@ namespace MultiClientServer
     {
         Dictionary<int, List<Node>> connections = new Dictionary<int, List<Node>>();
 
+        public RoutingTable(int poort, Node node)
+        {
+            AddConnection(poort, node);
+        }
+
         public void AddConnection(int poort, Node node)
         {
             if (connections.ContainsKey(poort) && !connections[poort].Contains(node))
@@ -49,6 +54,16 @@ namespace MultiClientServer
             {
                 return null;
             }
+        }
+
+        public int[] GetConnections()
+        {
+           return connections.Keys.ToArray();
+        }
+
+        public bool containskey(int poort)
+        {
+            return connections.ContainsKey(poort);
         }
     }
 }
