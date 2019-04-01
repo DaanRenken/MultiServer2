@@ -9,108 +9,124 @@ namespace MultiClientServer
     {
         static public int MijnPoort;
 
-        static public Dictionary<int, Connection> Buren = new Dictionary<int, Connection>();
-        static public List<int> Connecties = new List<int>();
+        static RoutingTable routingtable;
+
         static void Main(string[] args)
         {
-            Console.Write("Op welke poort ben ik server? ");
-            //MijnPoort = int.Parse(args[0]);
-            MijnPoort = int.Parse(Console.ReadLine());
-            new Server(MijnPoort);
-            Console.Title = MijnPoort.ToString();
-
-            /*
-            for (int i = 1; i < args.Length; i++)
+            bool cmdInput = (args.Length != 0);
+            if (cmdInput)
             {
-                int newPoort = int.Parse(args[i]);
-                bool connectSucceed = false;
-                while (!connectSucceed)
+                MijnPoort = int.Parse(args[0]);
+            }
+            else
+            {
+                MijnPoort = int.Parse(Console.ReadLine());
+            }
+
+            new Server(MijnPoort);
+            Console.Title = "NetChange " + MijnPoort.ToString();
+            routingtable = new RoutingTable(MijnPoort, new Node(MijnPoort, 0, MijnPoort));
+            if (cmdInput)
+            {
+                for (int i = 1; i < args.Length; i++)
                 {
-                    System.Threading.Thread.Sleep(1000);
-                    try
+                    int newPoort = int.Parse(args[i]);
+                    bool connectSucceed = false;
+                    while (!connectSucceed)
                     {
-                        if (Buren.ContainsKey(newPoort))
-                            Console.WriteLine("Hier is al verbinding naar!");
-                        else
+                        System.Threading.Thread.Sleep(50);
+                        try
                         {
-                            // Leg verbinding aan (als client)
-                            Buren.Add(newPoort, new Connection(newPoort));
+                            //Connection connection = new Connection(newPoort);
+                            //AddConnection(newPoort, connection);
+                            routingtable.AddConnection(newPoort, new Node(newPoort, 1, newPoort));
+                            connectSucceed = true;
+                            Console.WriteLine("Verbonden: " + newPoort);
                         }
-                        connectSucceed = true;
+                        catch { }
                     }
-                    catch { Exception e; }
                 }
             }
-            */
 
-            Console.WriteLine("Typ [verbind poortnummer] om verbinding te maken, bijvoorbeeld: verbind 1100");
-            Console.WriteLine("Typ [poortnummer bericht] om een bericht te sturen, bijvoorbeeld: 1100 hoi hoi");
-           
             while (true)
             {
                 string input = Console.ReadLine();
-                //try
+                try
                 {
-                    if (input.StartsWith("verbind"))
+                    switch (input.Split()[0])
                     {
-                        int poort = int.Parse(input.Split()[1]);
-                        if (Buren.ContainsKey(poort))
-                            Console.WriteLine("Hier is al verbinding naar!");
-                        else
-                        {
-                            // Leg verbinding aan (als client)
-                            Connection connection = new Connection(poort);
-                            Buren.Add(poort, connection);
-                            Connecties.Add(poort);
-                            connection.ping = connection.Ping(poort);
-                            
-                        }
-                    }
-                    else if (input.StartsWith("ping"))
-                    {
-                        int poort = int.Parse(input.Split()[1]);
-                        if (Buren.ContainsKey(poort))
-                        {
-                            Console.WriteLine((Buren[poort].Ping(poort)));
-                        }
-                        else
-                        {
-                            Console.WriteLine("Hier is al verbinding naar!");
-                        }
-                    }
-                    else if (input.StartsWith("R"))
-                    {
-                        print();
-                    }
-                    else
-                    {
-                        // Stuur berichtje
-                        string[] delen = input.Split(new char[] { ' ' }, 2);
-                        int poort = int.Parse(delen[0]);
-                        if (!Buren.ContainsKey(poort))
-                        {
-                            Console.WriteLine("Hier is al verbinding naar!");
+                        // R: reveal dictionary
+                        case "R":
+                            {
+                                Print();
+                                break;
+                            }
+                        // B: bericht naar poort
+                        case "B":
+                            {
+                                input = input.Substring(input.IndexOf(" ") + 1);
 
-                        }
-                        else
-                        {
-                            Buren[poort].Write.WriteLine(MijnPoort + ": " + delen[1]);
-                        }
+                                int poort = Int32.Parse(input.Split()[0]);
+                                if (routingtable.containskey(poort))
+                                {
+                                    routingtable.SendMessage(poort, input);
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Poort " + poort + " is niet bekend");
+                                }
+                                break;
+                            }
+                        // C: connect met poort
+                        case "C":
+                            {
+                                int poort = int.Parse(input.Split()[1]);
+                                routingtable.AddConnection(poort, new Node(poort, 1, poort));
+                                break;
+                            }
+                        // D: destroy verbinding met poort
+                        case "D":
+                            {
+                                int poort = int.Parse(input.Split()[1]);
+                                if (routingtable.containskey(poort))
+                                {
+                                    if (routingtable.containskey(poort))
+                                    {
+                                        //Buren[poort].SendMessage("Remove Connection " + MijnPoort);
+                                        //RemoveConnection(poort);
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("Poort " + poort + " is niet bekend");
+                                    }
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Poort " + poort + " is niet bekend");
+                                }
+                                break;
+                            }
                     }
                 }
-                //catch
-                //{
-                //    Console.WriteLine("foute input probeer het nog eens");
-                //}
+                catch
+                { }
             }
-            
+
         }
-        static void print()
+
+        static void Print()
         {
-            for (int i = 0; i < Connecties.Count; i++)
+            int[] connecties = routingtable.GetConnections();
+            foreach (int i in connecties)
             {
-               Console.WriteLine(Connecties[i] + " " + Buren[Connecties[i]].ping);
+                Node tempnode = routingtable.GetNode(i);
+                Console.WriteLine(tempnode.ReturnPoort() + " " + tempnode.ReturnDistance() + " " + tempnode.ReturnNeighbor());
             }
+        }
+
+        public static void AddConnection(int newPoort) {
+            routingtable.AddConnection(newPoort, new Node(newPoort, 0, newPoort));
         }
     }
 }
+
