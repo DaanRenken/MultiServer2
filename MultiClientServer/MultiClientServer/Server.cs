@@ -37,8 +37,12 @@ namespace MultiClientServer
 
                 // Zet de nieuwe verbinding in de verbindingslijst
                 Connection connection = new Connection(clientIn, clientOut);
+<<<<<<< HEAD
                 Program.AddConnection(zijnPoort);
                 //Program.AddConnection(zijnPoort,connection);
+=======
+                Program.AcceptConnection(zijnPoort, connection);
+>>>>>>> Thijs_poging2
                 //connection.ping = connection.Ping(zijnPoort);
 
             }

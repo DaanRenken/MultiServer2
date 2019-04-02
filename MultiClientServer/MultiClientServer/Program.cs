@@ -65,6 +65,7 @@ namespace MultiClientServer
                         case "B":
                             {
                                 input = input.Substring(input.IndexOf(" ") + 1);
+<<<<<<< HEAD
 
                                 int poort = Int32.Parse(input.Split()[0]);
                                 if (routingtable.containskey(poort))
@@ -82,13 +83,21 @@ namespace MultiClientServer
                                 {
                                     Console.WriteLine("Poort " + poort + " is niet bekend");
                                 }
+=======
+                                SendMessage(input);
+>>>>>>> Thijs_poging2
                                 break;
                             }
                         // C: connect met poort
                         case "C":
                             {
                                 int poort = int.Parse(input.Split()[1]);
+<<<<<<< HEAD
                                 routingtable.AddConnection(poort, new Node(poort, 0, poort));
+=======
+                                Console.WriteLine("Adding connection to {0} in routing table", poort);
+                                routingtable.AddConnection(poort, new Node(poort, 1, poort));
+>>>>>>> Thijs_poging2
                                 break;
                             }
                         // D: destroy verbinding met poort
@@ -97,6 +106,7 @@ namespace MultiClientServer
                                 int poort = int.Parse(input.Split()[1]);
                                 if (routingtable.containskey(poort))
                                 {
+<<<<<<< HEAD
                                     if (routingtable.containskey(poort))
                                     {
                                         //Buren[poort].SendMessage("Remove Connection " + MijnPoort);
@@ -106,6 +116,10 @@ namespace MultiClientServer
                                     {
                                         Console.WriteLine("Poort " + poort + " is niet bekend");
                                     }
+=======
+                                    Node destroyNode = new Node(poort, 1, poort);
+                                    routingtable.RemoveConnection(poort, destroyNode);
+>>>>>>> Thijs_poging2
                                 }
                                 else
                                 {
@@ -131,8 +145,31 @@ namespace MultiClientServer
             }
         }
 
+<<<<<<< HEAD
         public static void AddConnection(int newPoort) {
             routingtable.AddConnection(newPoort, new Node(newPoort, 0, newPoort));
+=======
+        public static void SendMessage(String message)
+        {
+            int poort = Int32.Parse(message.Split()[0]);
+            if (routingtable.containskey(poort))
+            {
+                routingtable.SendMessage(poort, message);
+            }
+            else
+            {
+                Console.WriteLine("Poort " + poort + " is niet bekend");
+            }
+        }
+
+        public static void AddConnection(int newPoort) {
+            routingtable.AddConnection(newPoort, new Node(newPoort, 1, newPoort));
+        }
+
+        public static void AcceptConnection(int newPoort, Connection connection)
+        {
+            routingtable.AcceptConnection(newPoort, new Node(newPoort, 1, newPoort), connection);
+>>>>>>> Thijs_poging2
         }
     }
 }

@@ -14,6 +14,11 @@ namespace MultiClientServer
     {
         public StreamReader Read;
         public StreamWriter Write;
+<<<<<<< HEAD
+=======
+        public int eigenadres;
+        public int doeladres;
+>>>>>>> Thijs_poging2
         object o = new object();
         // Connection heeft 2 constructoren: deze constructor wordt gebruikt als wij CLIENT worden bij een andere SERVER
         public Connection(int port)
@@ -22,6 +27,9 @@ namespace MultiClientServer
             Read = new StreamReader(client.GetStream());
             Write = new StreamWriter(client.GetStream());
             Write.AutoFlush = true;
+
+            this.eigenadres = Program.MijnPoort;
+            this.doeladres = port;
 
             // De server kan niet zien van welke poort wij client zijn, dit moeten we apart laten weten
             Write.WriteLine("Poort: " + Program.MijnPoort);
@@ -37,6 +45,9 @@ namespace MultiClientServer
             Read = read; Write = write;
 
             // Start het reader-loopje
+
+            this.eigenadres = Program.MijnPoort;
+
             Thread thread = new Thread(ReaderThread);
             thread.Start();         
         }
@@ -51,10 +62,48 @@ namespace MultiClientServer
                 while (true)
                 {
                     string message = Read.ReadLine();
+<<<<<<< HEAD
                     Console.WriteLine(message);
+=======
+                    // als een bericht binnenkomt wat voor de eigen poort bedoeld is, wordt er gekeken wat de opdracht is
+                    while (message.StartsWith(eigenadres.ToString()))
+                    {
+                        message = message.Substring(message.IndexOf(" ") + 1);
+                    }
+                    if (message.StartsWith(eigenadres.ToString()))
+                    {
+                        message = message.Substring(message.IndexOf(" ") + 1);
+                        Console.WriteLine(message);
+                    }
+                    // Is het voor een andere poort, dan gaat hij die proberen door te sturen
+                    else
+                    {
+                        try
+                        {
+                            Program.SendMessage(message);
+                        }
+                        catch
+                        {
+                            Console.WriteLine(message);
+                        }
+                    }
+>>>>>>> Thijs_poging2
                 }
             }
             catch { } // Verbinding is kennelijk verbroken
         }
+<<<<<<< HEAD
+=======
+
+        public void SendMessage (String input)
+        {
+            Write.WriteLine(input);
+        }
+
+        public void SetDestination(int poort)
+        {
+            this.doeladres = poort;
+        }
+>>>>>>> Thijs_poging2
     }
 }
