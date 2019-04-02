@@ -15,9 +15,32 @@ namespace MultiClientServer
         }
 
         public void AddConnection(int poort, Node node)
+        // Hier moet nog een case toegevoegd worden als verbinding wordt gezocht met een poort die (nog) niet bestaat
         {
             if (connections.ContainsKey(poort) && !connections[poort].Contains(node))
             {
+                if (node.ReturnDistance() == 1)
+                {
+                    Console.WriteLine("Creating connection within node");
+                    node.CreateConnection(poort);
+                }
+                connections[poort].Add(node);
+            }
+            else
+            {
+                connections.Add(poort, new List<Node>());
+                AddConnection(poort, node);
+            }
+        }
+
+        public void AcceptConnection(int poort, Node node, Connection connection)
+        {
+            if (connections.ContainsKey(poort) && !connections[poort].Contains(node))
+            {
+                if (node.ReturnDistance() == 1)
+                {
+                    node.AcceptConnection(connection);
+                }
                 connections[poort].Add(node);
             }
             else
@@ -81,7 +104,7 @@ namespace MultiClientServer
                 }
                 else
                 {
-                    Console.WriteLine("Hier moet nu een message verstuurd worden.");
+                    bestConnection.WriteMessage(input);
                 }
             }
         }

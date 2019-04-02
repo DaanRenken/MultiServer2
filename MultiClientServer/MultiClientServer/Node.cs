@@ -34,7 +34,19 @@ namespace MultiClientServer
 
         public void CreateConnection(int inputPoort)
         {
-            connection = new Connection()
+            connection = new Connection(poort);
+            Console.WriteLine("Connection succesfully created");
+        }
+
+        public void AcceptConnection(Connection newConnection)
+        {
+            connection = newConnection;
+            connection.SetDestination(poort);
+        }
+
+        public void WriteMessage(String input)
+        {
+            connection.SendMessage(input);
         }
     }
 }
