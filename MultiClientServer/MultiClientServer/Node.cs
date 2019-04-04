@@ -10,10 +10,6 @@ namespace MultiClientServer
         int poort;
         int distance;
         int prefneighbor;
-<<<<<<< HEAD
-=======
-        Connection connection;
->>>>>>> Thijs_poging2
 
         public Node(int inputPoort, int inputDistance, int inputNeighbor)
         {
@@ -34,25 +30,5 @@ namespace MultiClientServer
                 prefneighbor = newNeighbor;
             }
         }
-<<<<<<< HEAD
-=======
-
-        public void CreateConnection(int inputPoort)
-        {
-            connection = new Connection(poort);
-            Console.WriteLine("Connection succesfully created");
-        }
-
-        public void AcceptConnection(Connection newConnection)
-        {
-            connection = newConnection;
-            connection.SetDestination(poort);
-        }
-
-        public void WriteMessage(String input)
-        {
-            connection.SendMessage(input);
-        }
->>>>>>> Thijs_poging2
     }
 }
