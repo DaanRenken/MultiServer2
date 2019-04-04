@@ -10,6 +10,7 @@ namespace MultiClientServer
         int poort;
         int distance;
         int prefneighbor;
+        Connection connection;
 
         public Node(int inputPoort, int inputDistance, int inputNeighbor)
         {
@@ -29,6 +30,23 @@ namespace MultiClientServer
                 distance = newDistance;
                 prefneighbor = newNeighbor;
             }
+        }
+
+        public void CreateConnection(int inputPoort)
+        {
+            connection = new Connection(poort);
+            Console.WriteLine("Connection succesfully created");
+        }
+
+        public void AcceptConnection(Connection newConnection)
+        {
+            connection = newConnection;
+            connection.SetDestination(poort);
+        }
+
+        public void WriteMessage(String input)
+        {
+            connection.SendMessage(input);
         }
     }
 }
