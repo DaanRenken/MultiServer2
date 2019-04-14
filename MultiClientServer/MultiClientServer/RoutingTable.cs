@@ -8,6 +8,7 @@ namespace MultiClientServer
     class RoutingTable
     {
         Dictionary<int, List<Node>> connections = new Dictionary<int, List<Node>>();
+        Dictionary<int, object> locks = new Dictionary<int, object>();
 
         public RoutingTable(int poort, Node node)
         {
@@ -19,17 +20,25 @@ namespace MultiClientServer
         {
             if (connections.ContainsKey(poort) && !connections[poort].Contains(node))
             {
-                if (node.ReturnDistance() == 1)
+                lock (locks[poort])
                 {
-                    Console.WriteLine("Creating connection within node");
-                    node.CreateConnection(poort);
+                    if (node.ReturnDistance() == 1)
+                    {
+                        Console.WriteLine("Creating connection within node");
+                        node.CreateConnection(poort);
+                    }
+                    connections[poort].Add(node);
                 }
-                connections[poort].Add(node);
             }
             else
             {
-                connections.Add(poort, new List<Node>());
-                AddConnection(poort, node);
+                object locked = new object();
+                locks.Add(poort, locked);
+                lock (locks[poort])
+                {
+                    connections.Add(poort, new List<Node>());
+                    AddConnection(poort, node);
+                }
             }
         }
 
@@ -37,16 +46,24 @@ namespace MultiClientServer
         {
             if (connections.ContainsKey(poort) && !connections[poort].Contains(node))
             {
-                if (node.ReturnDistance() == 1)
+                lock (locks[poort])
                 {
-                    node.AcceptConnection(connection);
+                    if (node.ReturnDistance() == 1)
+                    {
+                        node.AcceptConnection(connection);
+                    }
+                    connections[poort].Add(node);
                 }
-                connections[poort].Add(node);
             }
             else
             {
-                connections.Add(poort, new List<Node>());
-                AddConnection(poort, node);
+                object locked = new object();
+                locks.Add(poort, locked);
+                lock (locks[poort])
+                {
+                    connections.Add(poort, new List<Node>());
+                    AddConnection(poort, node);
+                }
             }
         }
 
@@ -54,11 +71,20 @@ namespace MultiClientServer
         {
             if (connections.ContainsKey(poort) && connections[poort].Contains(node))
             {
-                connections[poort].Remove(node);
-                if (connections[poort].Count == 0)
+                bool removedconnection = false;
+                lock (locks[poort])
                 {
-                    connections.Remove(poort);
+                    connections[poort].Remove(node);
+                    if (connections[poort].Count == 0)
+                    {
+                        connections.Remove(poort);
+                        removedconnection = true;
+                    }
                 }
+                if (removedconnection)
+                {
+                    locks.Remove(poort);
+                }               
             }
             else
             {
