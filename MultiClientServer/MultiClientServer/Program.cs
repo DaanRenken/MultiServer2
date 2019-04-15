@@ -37,9 +37,8 @@ namespace MultiClientServer
                         System.Threading.Thread.Sleep(50);
                         try
                         {
-                            //Connection connection = new Connection(newPoort);
-                            //AddConnection(newPoort, connection);
-                            routingtable.AddConnection(newPoort, new Node(newPoort, 1, newPoort));
+                            Node newNode = new Node(newPoort, 1, newPoort);
+                            AddConnection(newPoort, newNode);
                             connectSucceed = true;
                             Console.WriteLine("Verbonden: " + newPoort);
                         }
@@ -73,7 +72,8 @@ namespace MultiClientServer
                             {
                                 int poort = int.Parse(input.Split()[1]);
                                 Console.WriteLine("Adding connection to {0} in routing table", poort);
-                                routingtable.AddConnection(poort, new Node(poort, 1, poort));
+                                Node newNode = new Node(poort, 1, poort);
+                                AddConnection(poort, newNode);
                                 break;
                             }
                         // D: destroy verbinding met poort
@@ -122,14 +122,18 @@ namespace MultiClientServer
             }
         }
 
-        public static void AddConnection(int newPoort) {
-            routingtable.AddConnection(newPoort, new Node(newPoort, 1, newPoort));
+        public static void AddConnection(int newPoort, Node node)
+        {
+            routingtable.AddConnection(newPoort, node);
         }
 
         public static void AcceptConnection(int newPoort, Connection connection)
         {
-            routingtable.AcceptConnection(newPoort, new Node(newPoort, 1, newPoort), connection);
+            Node newNode = new Node(newPoort, 1, newPoort);
+            routingtable.AcceptConnection(newPoort, newNode, connection);
         }
+
+
     }
 }
 

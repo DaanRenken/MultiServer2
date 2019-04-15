@@ -64,10 +64,20 @@ namespace MultiClientServer
                     {
                         message = message.Substring(message.IndexOf(" ") + 1);
                     }
-                    if (message.StartsWith(eigenadres.ToString()))
+                    // als er een nieuwe node moet worden aangemaakt, wordt er gekeken waar de node vandaan komt en wat de inhoud is
+                    // bij de distance wordt 1 opgeteld en daarna wordt de verbinding toegevoegd aan de routing table
+                    if (message.StartsWith("NewNode"))
                     {
+                        //Console.WriteLine(message);
                         message = message.Substring(message.IndexOf(" ") + 1);
-                        Console.WriteLine(message);
+                        // 0: neighbor, 1: indirect, 2: distance, 3: preferred neighbor
+                        string[] newNode = message.Split();
+                        Node node = new Node(int.Parse(newNode[1]), int.Parse(newNode[2]) + 1, int.Parse(newNode[0]));
+                        Program.AddConnection(int.Parse(newNode[1]), node);
+                    }
+                    else if (message.StartsWith("Test"))
+                    {
+                        Console.WriteLine("Test terug");
                     }
                     // Is het voor een andere poort, dan gaat hij die proberen door te sturen
                     else
