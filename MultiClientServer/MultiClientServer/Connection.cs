@@ -75,6 +75,11 @@ namespace MultiClientServer
                         Node node = new Node(int.Parse(newNode[1]), int.Parse(newNode[2]) + 1, int.Parse(newNode[0]));
                         Program.AddConnection(int.Parse(newNode[1]), node);
                     }
+                    else if (message.StartsWith("SendAll"))
+                    {
+                        string[] input = message.Split();
+                        Program.SendAll(int.Parse(input[1]));
+                    }
                     else if (message.StartsWith("Test"))
                     {
                         Console.WriteLine("Test terug");

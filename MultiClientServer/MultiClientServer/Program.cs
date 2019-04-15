@@ -133,6 +133,11 @@ namespace MultiClientServer
             routingtable.AcceptConnection(newPoort, newNode, connection);
         }
 
+        public static void SendAll(int poort)
+        {
+            routingtable.SendAll(poort);
+        }
+
 
     }
 }

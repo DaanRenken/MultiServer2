@@ -65,11 +65,14 @@ namespace MultiClientServer
                     node.AcceptConnection(connection);
                 }
                 connections[poort].Add(node);
+                node.WriteMessage(poort + " SendAll " + eigenpoort);
             }
             else
             {
                 connections.Add(poort, new List<Node>());
-                AddConnection(poort, node);
+                //AddConnection(poort, node);
+                AcceptConnection(poort, node, connection);
+                UpdateNeighbors(poort, node);
             }
         }
 
@@ -154,6 +157,20 @@ namespace MultiClientServer
                     {
                         directNeighbor.WriteMessage(neighbor + " NewNode " + eigenpoort + " " + node.ReturnPoort() + " " + node.ReturnDistance() + " " + node.ReturnNeighbor());
                     }
+                }
+            }
+        }
+
+        // stuurt de hele routing table die op dat moment bestaat naar de andere poort
+        public void SendAll(int poort)
+        {
+            Node bestConnection = GetNode(poort);
+            Dictionary<int, List<Node>>.KeyCollection keyColl = connections.Keys;
+            foreach (int neighbor in keyColl)
+            {
+                foreach (var ele in connections[neighbor])
+                {
+                    bestConnection.WriteMessage(poort + " NewNode " + eigenpoort + " " + bestConnection.ReturnPoort() + " " + bestConnection.ReturnDistance() + " " + bestConnection.ReturnNeighbor());
                 }
             }
         }
