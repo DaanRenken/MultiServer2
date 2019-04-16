@@ -25,20 +25,16 @@ namespace MultiClientServer
             // als er al een (indirecte) verbinding is naar de poort, wordt er gekeken om wat voor soort node de toevoeging gaat
             if (connections.ContainsKey(poort))
             {
-
                 lock (locks[poort])
                 {
-
                     if (!connections[poort].Exists(x => x.ReturnNeighbor() == node.ReturnNeighbor()))
                     {
                         // als de verbinding via een nieuwe neighbor gaat en een distance van 1 heeft, wordt er een directe verbinding gelegd
-
                         if (node.ReturnDistance() == 1)
                         {
                             Console.WriteLine("Creating connection within node");
                             node.CreateConnection(poort);
                         }
-                        connections[poort].Add(node);
                         // bij een langere distance wordt er een normale, indirecte verbinding gelegd
                         connections[poort].Add(node);
                         UpdateNeighbors(poort, node);
@@ -73,28 +69,36 @@ namespace MultiClientServer
 
         public void AcceptConnection(int poort, Node node, Connection connection)
         {
+            // bij een accepted connection wordt gekeken of er al een verbinding is naar de andere poort
             if (connections.ContainsKey(poort) && !connections[poort].Contains(node))
             {
-                lock (locks[poort])
+                // zo ja, dan wordt er gekeken of deze directe verbinding al bestaat
+                if (!connections[poort].Contains(node))
                 {
-                    if (node.ReturnDistance() == 1)
+                    lock (locks[poort])
                     {
-                        node.AcceptConnection(connection);
+                        // als dat niet het geval is, wordt de verbinding aangelegd en wordt de hele dictionary naar de andere node gestuurd.
+                        if (node.ReturnDistance() == 1)
+                        {
+                            node.AcceptConnection(connection);
+                            node.WriteMessage(poort + " SendAll " + eigenpoort);
+                        }
+                        connections[poort].Add(node);
+                        UpdateNeighbors(poort, node);
                     }
-                    connections[poort].Add(node);
                 }
             }
             else
             {
+                // mocht er nog helemaal geen verbinding zijn, dan wordt de poort toegevoegd aan de routing table en begint de accept-loop opnieuw
                 object locked = new object();
                 locks.Add(poort, locked);
                 lock (locks[poort])
                 {
                     connections.Add(poort, new List<Node>());
-                    AddConnection(poort, node);
+                    AcceptConnection(poort, node, connection);
                 }
-                connections[poort].Add(node);
-                node.WriteMessage(poort + " SendAll " + eigenpoort);
+                //connections[poort].Add(node);
 
                 //connections.Add(poort, new List<Node>());
                 //AddConnection(poort, node);

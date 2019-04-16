@@ -89,7 +89,6 @@ namespace MultiClientServer
                     {
                         try
                         {
-                            Console.WriteLine(message);
                             Program.SendMessage(message);
                         }
                         catch
