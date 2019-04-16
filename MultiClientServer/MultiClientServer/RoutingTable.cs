@@ -29,30 +29,31 @@ namespace MultiClientServer
                 lock (locks[poort])
                 {
 
-                if (!connections[poort].Exists(x => x.ReturnNeighbor() == node.ReturnNeighbor()))
-                {
-                    // als de verbinding via een nieuwe neighbor gaat en een distance van 1 heeft, wordt er een directe verbinding gelegd
+                    if (!connections[poort].Exists(x => x.ReturnNeighbor() == node.ReturnNeighbor()))
+                    {
+                        // als de verbinding via een nieuwe neighbor gaat en een distance van 1 heeft, wordt er een directe verbinding gelegd
 
-                    if (node.ReturnDistance() == 1)
-                    {
-                        Console.WriteLine("Creating connection within node");
-                        node.CreateConnection(poort);
-                    }
-                    connections[poort].Add(node);
-                    // bij een langere distance wordt er een normale, indirecte verbinding gelegd
-                    connections[poort].Add(node);
-                    UpdateNeighbors(poort, node);
-                }
-                // als er al een verbinding bestaat met dezelfde preferred neighbor, wordt er gekeken of dit een verbetering is
-                else
-                {
-                    foreach (var ele in connections[poort])
-                    {
-                        if (node.ReturnNeighbor() == ele.ReturnNeighbor() && node.ReturnDistance() < ele.ReturnDistance())
+                        if (node.ReturnDistance() == 1)
                         {
-                            // zo ja, dan wordt de oude verbinding geupdated
-                            ele.Update(node.ReturnDistance());
-                            UpdateNeighbors(poort, node);
+                            Console.WriteLine("Creating connection within node");
+                            node.CreateConnection(poort);
+                        }
+                        connections[poort].Add(node);
+                        // bij een langere distance wordt er een normale, indirecte verbinding gelegd
+                        connections[poort].Add(node);
+                        UpdateNeighbors(poort, node);
+                    }
+                    // als er al een verbinding bestaat met dezelfde preferred neighbor, wordt er gekeken of dit een verbetering is
+                    else
+                    {
+                        foreach (var ele in connections[poort])
+                        {
+                            if (node.ReturnNeighbor() == ele.ReturnNeighbor() && node.ReturnDistance() < ele.ReturnDistance())
+                            {
+                                // zo ja, dan wordt de oude verbinding geupdated
+                                ele.Update(node.ReturnDistance());
+                                UpdateNeighbors(poort, node);
+                            }
                         }
                     }
                 }
@@ -94,16 +95,14 @@ namespace MultiClientServer
                 }
                 connections[poort].Add(node);
                 node.WriteMessage(poort + " SendAll " + eigenpoort);
-            }
-            else
-            {
-                connections.Add(poort, new List<Node>());
+
+                //connections.Add(poort, new List<Node>());
                 //AddConnection(poort, node);
-                AcceptConnection(poort, node, connection);
-                UpdateNeighbors(poort, node);
+                //AcceptConnection(poort, node, connection);
+                //UpdateNeighbors(poort, node);
             }
         }
-
+    
         public void RemoveConnection(int poort, Node node)
         {
             if (connections.ContainsKey(poort) && connections[poort].Contains(node))
@@ -121,7 +120,7 @@ namespace MultiClientServer
                 if (removedconnection)
                 {
                     locks.Remove(poort);
-                }               
+                }
             }
             else
             {
@@ -144,7 +143,7 @@ namespace MultiClientServer
 
         public int[] GetConnections()
         {
-           return connections.Keys.ToArray();
+            return connections.Keys.ToArray();
         }
 
         public bool containskey(int poort)
@@ -213,3 +212,4 @@ namespace MultiClientServer
         }
     }
 }
+
