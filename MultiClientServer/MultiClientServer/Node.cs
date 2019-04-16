@@ -23,13 +23,9 @@ namespace MultiClientServer
         public int ReturnDistance() { return distance; }
         public int ReturnNeighbor() { return prefneighbor; }
 
-        public void Update(int newPoort, int newDistance, int newNeighbor)
+        public void Update(int newDistance)
         {
-            if ((poort == newPoort) && (newDistance < distance))
-            {
-                distance = newDistance;
-                prefneighbor = newNeighbor;
-            }
+            distance = newDistance;
         }
 
         public void CreateConnection(int inputPoort)
