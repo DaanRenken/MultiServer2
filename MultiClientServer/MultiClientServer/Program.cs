@@ -93,8 +93,8 @@ namespace MultiClientServer
                             }
                     }
                 }
-                catch
-                { }
+                catch(Exception e)
+                { Console.WriteLine(e); }
             }
         }
 

@@ -3,13 +3,13 @@ std-Opstarten;0;1;0;4
 std-Connect;0;0;0;1
 std-Disconnect;0;0;0;1
 std-Berichten;0;0;0;1
-std-BerichtNaVerandering;0;0;0;0.5
+std-BerichtNaVerandering;0;0;0;0,5
 std-NetwerkPartitie;0;0;0;1
-Opstarten;0;0;0;4
+Opstarten;0;1;0;4
 Connect;0;0;0;1
 Disconnect;0;0;0;1
 Berichten;0;0;0;1
-BerichtNaVerandering;0;0;0;0.5
+BerichtNaVerandering;0;0;0;0,5
 NetwerkPartitie;0;0;0;1
 BovenLimiet;0;1;0;1
 Totaal;-;-;0;(van 18)
@@ -19,44 +19,15 @@ Let op: deze berekening is niet het definitieve cijfer. Dit is alleen maar een a
 ------------------------------------
 
 Testcase;Status;Tijd;Omschrijving
-Standaard;Incorrect;11.18;Opstarten netwerk
+Standaard;Error;3,32;Opstarten netwerk
+Random;Error;3,32;Opstarten netwerk
 
 ------------------------------------
 
-1;Standaard;Incorrect;11.18;Opstarten netwerk
+1;Standaard;Error;3,32;Opstarten netwerk
 Test 1 - Standaard
 
-Fout bij opzetten netwerk - de routing-tabel is incorrect.
-Het programma ziet de verbinding van 55500 naar 55501 niet.
-Het programma ziet de verbinding van 55500 naar 55502 niet.
-Het programma ziet de verbinding van 55500 naar 55503 niet.
-Het programma ziet de verbinding van 55500 naar 55504 niet.
-Het programma ziet de verbinding van 55500 naar 55505 niet.
-Het programma ziet de verbinding van 55501 naar 55500 niet.
-Het programma ziet de verbinding van 55501 naar 55502 niet.
-Het programma ziet de verbinding van 55501 naar 55503 niet.
-Het programma ziet de verbinding van 55501 naar 55504 niet.
-Het programma ziet de verbinding van 55501 naar 55505 niet.
-Het programma ziet de verbinding van 55502 naar 55500 niet.
-Het programma ziet de verbinding van 55502 naar 55501 niet.
-Het programma ziet de verbinding van 55502 naar 55503 niet.
-Het programma ziet de verbinding van 55502 naar 55504 niet.
-Het programma ziet de verbinding van 55502 naar 55505 niet.
-Het programma ziet de verbinding van 55503 naar 55500 niet.
-Het programma ziet de verbinding van 55503 naar 55501 niet.
-Het programma ziet de verbinding van 55503 naar 55502 niet.
-Het programma ziet de verbinding van 55503 naar 55504 niet.
-Het programma ziet de verbinding van 55503 naar 55505 niet.
-Het programma ziet de verbinding van 55504 naar 55500 niet.
-Het programma ziet de verbinding van 55504 naar 55501 niet.
-Het programma ziet de verbinding van 55504 naar 55502 niet.
-Het programma ziet de verbinding van 55504 naar 55503 niet.
-Het programma ziet de verbinding van 55504 naar 55505 niet.
-Het programma ziet de verbinding van 55505 naar 55500 niet.
-Het programma ziet de verbinding van 55505 naar 55501 niet.
-Het programma ziet de verbinding van 55505 naar 55502 niet.
-Het programma ziet de verbinding van 55505 naar 55503 niet.
-Het programma ziet de verbinding van 55505 naar 55504 niet.
+Process 55500 gercasht met foutmelding:
 
 Log
 start MultiClientServer.exe 55500 55501 55502
@@ -65,42 +36,204 @@ start MultiClientServer.exe 55502 55500 55501 55503 55504
 start MultiClientServer.exe 55503 55502 55505
 start MultiClientServer.exe 55504 55502 55505
 start MultiClientServer.exe 55505 55503 55504
-55500 < Op welke poort ben ik server?
-55503 < Op welke poort ben ik server?
-55502 < Op welke poort ben ik server?
-55501 < Op welke poort ben ik server?
-55504 < Op welke poort ben ik server?
-55505 < Op welke poort ben ik server?
-55500 > R
-55501 > R
-55502 > R
-55503 > R
-55504 > R
-55505 > R
+55501 < Creating connection within node
+55502 < Creating connection within node
+55504 < Creating connection within node
+55503 < Creating connection within node
+55505 < Creating connection within node
+55500 < Creating connection within node
+55500 < Client maakt verbinding: 55501
+55501 < Connection succesfully created
+55501 < Verbonden: 55500
+55502 < Connection succesfully created
+55502 < Client maakt verbinding: 55503
+55503 < Connection succesfully created
+55504 < Connection succesfully created
+55503 < Verbonden: 55502
+55502 < Verbonden: 55500
+55501 < Client maakt verbinding: 55500
+55500 < Connection succesfully created
+55504 < Verbonden: 55502
+55502 < Client maakt verbinding: 55504
+55503 < Bericht voor 55502 doorgestuurd naar 55502
+55500 < Verbonden: 55501
+55500 < Client maakt verbinding: 55502
+55500 < Bericht voor 55501 doorgestuurd naar 55501
+55503 < Client maakt verbinding: 55505
+55505 < Connection succesfully created
+55504 < Bericht voor 55502 doorgestuurd naar 55502
+55505 < Verbonden: 55503
+55504 < Afstand naar 55500 is nu 2 via 55502
+55502 < Afstand naar 55500 is nu 3 via 55504
+55504 < Afstand naar 55503 is nu 2 via 55502
+55502 < Afstand naar 55503 is nu 3 via 55504
+55505 < Bericht voor 55503 doorgestuurd naar 55503
 
 Process 55500:
-Op welke poort ben ik server?
-> R
+Creating connection within node
+Client maakt verbinding: 55501
+Connection succesfully created
+Verbonden: 55501
+Client maakt verbinding: 55502
+Bericht voor 55501 doorgestuurd naar 55501
 
 Process 55501:
-Op welke poort ben ik server?
-> R
+Creating connection within node
+Connection succesfully created
+Verbonden: 55500
+Client maakt verbinding: 55500
 
 Process 55502:
-Op welke poort ben ik server?
-> R
+Creating connection within node
+Connection succesfully created
+Client maakt verbinding: 55503
+Verbonden: 55500
+Client maakt verbinding: 55504
+Afstand naar 55500 is nu 3 via 55504
+Afstand naar 55503 is nu 3 via 55504
 
 Process 55503:
-Op welke poort ben ik server?
-> R
+Creating connection within node
+Connection succesfully created
+Verbonden: 55502
+Bericht voor 55502 doorgestuurd naar 55502
+Client maakt verbinding: 55505
 
 Process 55504:
-Op welke poort ben ik server?
-> R
+Creating connection within node
+Connection succesfully created
+Verbonden: 55502
+Bericht voor 55502 doorgestuurd naar 55502
+Afstand naar 55500 is nu 2 via 55502
+Afstand naar 55503 is nu 2 via 55502
 
 Process 55505:
-Op welke poort ben ik server?
-> R
+Creating connection within node
+Connection succesfully created
+Verbonden: 55503
+Bericht voor 55503 doorgestuurd naar 55503
+
+------------------------------------
+
+2;Random;Error;3,32;Opstarten netwerk
+Test 2 - Random
+
+Process 55501 gercasht met foutmelding:
+Unhandled Exception: System.ArgumentOutOfRangeException: Index was out of range. Must be non-negative and less than the size of the collection.
+Parameter name: index
+   at System.ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument argument, ExceptionResource resource)
+   at System.Collections.Generic.List`1.get_Item(Int32 index)
+   at MultiClientServer.RoutingTable.GetNode(Int32 poort) in C:\Users\daanr\OneDrive\Documents\GitHub\MultiServer2\MultiClientServer\MultiClientServer\RoutingTable.cs:line 177
+   at MultiClientServer.RoutingTable.UpdateNeighbors(Int32 poort, Node node) in C:\Users\daanr\OneDrive\Documents\GitHub\MultiServer2\MultiClientServer\MultiClientServer\RoutingTable.cs:line 231
+   at MultiClientServer.RoutingTable.AcceptConnection(Int32 poort, Node node, Connection connection) in C:\Users\daanr\OneDrive\Documents\GitHub\MultiServer2\MultiClientServer\MultiClientServer\RoutingTable.cs:line 84
+   at MultiClientServer.RoutingTable.AcceptConnection(Int32 poort, Node node, Connection connection) in C:\Users\daanr\OneDrive\Documents\GitHub\MultiServer2\MultiClientServer\MultiClientServer\RoutingTable.cs:line 98
+   at MultiClientServer.Program.AcceptConnection(Int32 newPoort, Connection connection) in C:\Users\daanr\OneDrive\Documents\GitHub\MultiServer2\MultiClientServer\MultiClientServer\Program.cs:line 139
+   at MultiClientServer.Server.AcceptLoop(TcpListener handle) in C:\Users\daanr\OneDrive\Documents\GitHub\MultiServer2\MultiClientServer\MultiClientServer\Server.cs:line 40
+   at MultiClientServer.Server.<>c__DisplayClass0_0.<.ctor>b__0() in C:\Users\daanr\OneDrive\Documents\GitHub\MultiServer2\MultiClientServer\MultiClientServer\Server.cs:line 21
+   at System.Threading.ThreadHelper.ThreadStart_Context(Object state)
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state, Boolean preserveSyncCtx)
+   at System.Threading.ExecutionContext.Run(ExecutionContext executionContext, ContextCallback callback, Object state, Boolean preserveSyncCtx)
+   at System.Threading.ExecutionContext.Run(ExecutionContext executionContext, ContextCallback callback, Object state)
+   at System.Threading.ThreadHelper.ThreadStart()
+
+Log
+start MultiClientServer.exe 55500 55501 55502 55503 55506 55507
+start MultiClientServer.exe 55501 55500 55502 55504 55505 55506
+start MultiClientServer.exe 55502 55500 55501 55504
+start MultiClientServer.exe 55503 55500 55504 55505 55506 55508
+start MultiClientServer.exe 55504 55501 55502 55503 55506
+start MultiClientServer.exe 55505 55501 55503 55506
+start MultiClientServer.exe 55506 55500 55501 55503 55504 55505 55507
+start MultiClientServer.exe 55507 55500 55506
+start MultiClientServer.exe 55508 55503
+55501 < Creating connection within node
+55500 < Creating connection within node
+55503 < Creating connection within node
+55502 < Creating connection within node
+55506 < Creating connection within node
+55504 < Creating connection within node
+55507 < Creating connection within node
+55505 < Creating connection within node
+55508 < Creating connection within node
+55500 < Client maakt verbinding: 55501
+55501 < Connection succesfully created
+55501 < Verbonden: 55500
+55501 < Client maakt verbinding: 55500
+55500 < Connection succesfully created
+55500 < Verbonden: 55501
+55500 < Bericht voor 55501 doorgestuurd naar 55501
+55500 < Client maakt verbinding: 55503
+55503 < Connection succesfully created
+55503 < Verbonden: 55500
+55503 < Bericht voor 55500 doorgestuurd naar 55500
+55501 < Creating connection within node
+55500 < Client maakt verbinding: 55502
+55502 < Connection succesfully created
+55502 < Verbonden: 55500
+55502 < Bericht voor 55500 doorgestuurd naar 55500
+55500 < Verbonden: 55502
+55501 < Client maakt verbinding: 55504
+55504 < Connection succesfully created
+55500 < Client maakt verbinding: 55506
+55506 < Connection succesfully created
+55504 < Verbonden: 55501
+55500 < Client maakt verbinding: 55507
+55507 < Connection succesfully created
+55506 < Verbonden: 55500
+55507 < Verbonden: 55500
+
+Process 55500:
+Creating connection within node
+Client maakt verbinding: 55501
+Connection succesfully created
+Verbonden: 55501
+Bericht voor 55501 doorgestuurd naar 55501
+Client maakt verbinding: 55503
+Client maakt verbinding: 55502
+Verbonden: 55502
+Client maakt verbinding: 55506
+Client maakt verbinding: 55507
+
+Process 55501:
+Creating connection within node
+Connection succesfully created
+Verbonden: 55500
+Client maakt verbinding: 55500
+Creating connection within node
+Client maakt verbinding: 55504
+
+Process 55502:
+Creating connection within node
+Connection succesfully created
+Verbonden: 55500
+Bericht voor 55500 doorgestuurd naar 55500
+
+Process 55503:
+Creating connection within node
+Connection succesfully created
+Verbonden: 55500
+Bericht voor 55500 doorgestuurd naar 55500
+
+Process 55504:
+Creating connection within node
+Connection succesfully created
+Verbonden: 55501
+
+Process 55505:
+Creating connection within node
+
+Process 55506:
+Creating connection within node
+Connection succesfully created
+Verbonden: 55500
+
+Process 55507:
+Creating connection within node
+Connection succesfully created
+Verbonden: 55500
+
+Process 55508:
+Creating connection within node
 
 Microsoft Windows NT 6.2.9200.0 (x64)
 .NET version: 4.0.30319.42000

@@ -102,41 +102,81 @@ namespace MultiClientServer
         public void RemoveConnection(int poort)
         {
             Node node = GetNode(poort);
-            if (node.ReturnDistance() == 1)
-            {
-                RemoveConnection(poort, node);
-            }
+            RemoveConnection(poort, node);
         }
-    
+
         public void RemoveConnection(int poort, Node node)
         {
             if (connections[poort].Exists(x => x.ReturnNeighbor() == node.ReturnNeighbor()))
             {
+                Dictionary<int, List<Node>>.KeyCollection keyColl = connections.Keys;
                 Node temp = connections[poort].Find(x => x.ReturnNeighbor() == node.ReturnNeighbor());
                 bool removedconnection = false;
-                if (temp.ReturnDistance() == 1)
+                lock (locks[poort])
                 {
-                    lock (locks[poort])
+                    if (temp.ReturnDistance() == 1)
                     {
-
                         temp.WriteMessage("RemoveNode " + eigenpoort);
-                        connections[poort].Remove(temp);
-                        if (connections[poort].Count == 0)
-                        {
-                            connections.Remove(poort);
-                            removedconnection = true;
-                        }
                     }
-                    if (removedconnection)
+                    connections[poort].Remove(temp);
+                    if (connections[poort].Count == 0)
                     {
-                        locks.Remove(poort);
+                        connections.Remove(poort);
+                        removedconnection = true;
                     }
                 }
-                else
+                if (removedconnection)
                 {
-                    Console.WriteLine("No direct connection with poort " + poort);
+                    locks.Remove(poort);
+                    foreach (int neighbor in keyColl)
+                    {
+                        if (neighbor != eigenpoort)
+                            SendMessage(neighbor, "RemoveNode " + poort);
+                    }
                 }
-                //connections.Keys
+                List<int> remove = new List<int>();
+                foreach (int neighbor in keyColl)
+                {
+                    removedconnection = false;
+                    for (int i = 0; i < connections[neighbor].Count; i++)
+                    {  
+                        lock (locks[neighbor])
+                        {
+                            Node ele = connections[neighbor][i];
+                            //Console.WriteLine(ele.ReturnNeighbor() + " " + ele.ReturnPoort() + " " + node.ReturnPoort());
+                            if (ele.ReturnNeighbor() == node.ReturnPoort() && ele.ReturnPoort() != eigenpoort)
+                            {
+                                connections[neighbor].Remove(ele);
+                                if (connections[neighbor].Count == 0)
+                                {
+                                    remove.Add(neighbor);
+                                }
+                            }
+                        }
+                        //Console.WriteLine("done");
+                    }
+                }
+
+                foreach(int key in remove)
+                {
+                    lock (locks[key])
+                    {
+                        connections.Remove(key);
+                    }                    
+                    foreach (int neighbor in keyColl)
+                    {
+                        if (neighbor != eigenpoort)
+                            SendMessage(neighbor, "RemoveNode " + key);
+                    }
+                    locks.Remove(key);
+                }
+                foreach(int neighbor in keyColl)
+                {
+                    if (GetNode(neighbor).ReturnDistance() >= keyColl.Count)
+                    {
+                        RemoveConnection(neighbor);
+                    }
+                }
             }
             else
             {

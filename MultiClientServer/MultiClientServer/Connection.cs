@@ -58,6 +58,7 @@ namespace MultiClientServer
                 while (true)
                 {
                     string message = Read.ReadLine();
+                    Console.WriteLine(message);
                     // als een bericht binnenkomt wat voor de eigen poort bedoeld is, wordt er gekeken wat de opdracht is
                     while (message.StartsWith(eigenadres.ToString()))
                     {
@@ -84,8 +85,8 @@ namespace MultiClientServer
                     }
                     else if (message.StartsWith("RemoveNode"))
                     {
-                        Program.RemoveConnection(int.Parse(message.Split()[1]));
                         Console.WriteLine(message);
+                        Program.RemoveConnection(int.Parse(message.Split()[1]));                  
                     }
                     // Is het voor een andere poort, dan gaat hij die proberen door te sturen
                     else
