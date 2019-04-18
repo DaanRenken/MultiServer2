@@ -38,6 +38,7 @@ namespace MultiClientServer
         {
             connection = newConnection;
             connection.SetDestination(poort);
+
         }
 
         public void WriteMessage(String input)

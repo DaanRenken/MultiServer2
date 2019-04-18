@@ -71,21 +71,19 @@ namespace MultiClientServer
         public void AcceptConnection(int poort, Node node, Connection connection)
         {
             // bij een accepted connection wordt gekeken of er al een verbinding is naar de andere poort
-            if (connections.ContainsKey(poort) && !connections[poort].Contains(node))
+            if (connections.ContainsKey(poort))
             {
                 // zo ja, dan wordt er gekeken of deze directe verbinding al bestaat
                 if (!connections[poort].Contains(node))
                 {
                     lock (locks[poort])
                     {
-                        // als dat niet het geval is, wordt de verbinding aangelegd en wordt de hele dictionary naar de andere node gestuurd.
-                        if (node.ReturnDistance() == 1)
-                        {
-                            node.AcceptConnection(connection);
-                            node.WriteMessage(poort + " SendAll " + eigenpoort);
-                        }
+                        // als dat niet het geval is, wordt de verbinding aangelegd en worden dictionaries uitgewisseld.
+                        node.AcceptConnection(connection);
                         connections[poort].Add(node);
                         UpdateNeighbors(poort, node);
+                        node.WriteMessage(poort + " SendAll " + eigenpoort);
+                        node.WriteMessage(eigenpoort + " SendAll " + poort);
                     }
                 }
             }
@@ -150,8 +148,8 @@ namespace MultiClientServer
         {
             if (connections.ContainsKey(poort))
             {
-                connections[poort] = connections[poort].OrderBy(x => x.ReturnDistance()).ToList();
-                return connections[poort][0];
+                List<Node> orderedNodes = connections[poort].OrderBy(x => x.ReturnDistance()).ToList();
+                return orderedNodes[0];
             }
             else
             {
@@ -223,7 +221,7 @@ namespace MultiClientServer
             {
                 foreach (var ele in connections[neighbor])
                 {
-                    bestConnection.WriteMessage(poort + " NewNode " + eigenpoort + " " + bestConnection.ReturnPoort() + " " + bestConnection.ReturnDistance() + " " + bestConnection.ReturnNeighbor());
+                    bestConnection.WriteMessage(poort + " NewNode " + eigenpoort + " " + ele.ReturnPoort() + " " + ele.ReturnDistance() + " " + ele.ReturnNeighbor());
                 }
             }
         }
