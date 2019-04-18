@@ -38,6 +38,9 @@ namespace MultiClientServer
                 // Zet de nieuwe verbinding in de verbindingslijst
                 Connection connection = new Connection(clientIn, clientOut);
                 Program.AcceptConnection(zijnPoort, connection);
+
+                // stuur dictionary naar neighbor nieuwe poort
+                //Program.SendAll(zijnPoort);
                 //connection.ping = connection.Ping(zijnPoort);
 
             }
