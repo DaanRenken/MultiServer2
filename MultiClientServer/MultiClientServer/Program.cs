@@ -96,7 +96,6 @@ namespace MultiClientServer
                 catch
                 { }
             }
-
         }
 
         static void Print()
@@ -122,6 +121,13 @@ namespace MultiClientServer
             }
         }
 
+        public static void SendMessage(String message, bool doorgestuurd)
+        {
+            int poort = Int32.Parse(message.Split()[0]);
+            Console.WriteLine("Bericht voor " + poort + " doorgestuurd naar " + routingtable.GetNode(poort).ReturnNeighbor());
+            SendMessage(message);
+        }
+
         public static void AddConnection(int newPoort, Node node)
         {
             routingtable.AddConnection(newPoort, node);
@@ -137,8 +143,6 @@ namespace MultiClientServer
         {
             routingtable.SendAll(poort);
         }
-
-
     }
 }
 
