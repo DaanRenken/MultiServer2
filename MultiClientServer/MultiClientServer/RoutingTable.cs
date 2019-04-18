@@ -99,37 +99,50 @@ namespace MultiClientServer
                     connections.Add(poort, new List<Node>());
                     AcceptConnection(poort, node, connection);
                 }
-                //connections[poort].Add(node);
-
-                //connections.Add(poort, new List<Node>());
-                //AddConnection(poort, node);
-                //AcceptConnection(poort, node, connection);
-                //UpdateNeighbors(poort, node);
+            }
+        }
+        public void RemoveConnection(int poort)
+        {
+            Node node = GetNode(poort);
+            if (node.ReturnDistance() == 1)
+            {
+                RemoveConnection(poort, node);
             }
         }
     
         public void RemoveConnection(int poort, Node node)
         {
-            if (connections.ContainsKey(poort) && connections[poort].Contains(node))
+            if (connections[poort].Exists(x => x.ReturnNeighbor() == node.ReturnNeighbor()))
             {
+                Node temp = connections[poort].Find(x => x.ReturnNeighbor() == node.ReturnNeighbor());
                 bool removedconnection = false;
-                lock (locks[poort])
+                if (temp.ReturnDistance() == 1)
                 {
-                    connections[poort].Remove(node);
-                    if (connections[poort].Count == 0)
+                    lock (locks[poort])
                     {
-                        connections.Remove(poort);
-                        removedconnection = true;
+
+                        temp.WriteMessage("RemoveNode " + eigenpoort);
+                        connections[poort].Remove(temp);
+                        if (connections[poort].Count == 0)
+                        {
+                            connections.Remove(poort);
+                            removedconnection = true;
+                        }
+                    }
+                    if (removedconnection)
+                    {
+                        locks.Remove(poort);
                     }
                 }
-                if (removedconnection)
+                else
                 {
-                    locks.Remove(poort);
+                    Console.WriteLine("No direct connection with poort " + poort);
                 }
+                //connections.Keys
             }
             else
             {
-
+                Console.WriteLine("Error: no connection to port {0}", poort);
             }
         }
 
@@ -137,7 +150,7 @@ namespace MultiClientServer
         {
             if (connections.ContainsKey(poort))
             {
-                connections[poort].OrderBy(x => x.ReturnDistance()).ToList<Node>();
+                connections[poort] = connections[poort].OrderBy(x => x.ReturnDistance()).ToList();
                 return connections[poort][0];
             }
             else

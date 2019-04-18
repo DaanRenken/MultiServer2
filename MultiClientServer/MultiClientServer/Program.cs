@@ -139,6 +139,11 @@ namespace MultiClientServer
             routingtable.AcceptConnection(newPoort, newNode, connection);
         }
 
+        public static void RemoveConnection(int poort)
+        {
+            routingtable.RemoveConnection(poort);
+        }
+
         public static void SendAll(int poort)
         {
             routingtable.SendAll(poort);

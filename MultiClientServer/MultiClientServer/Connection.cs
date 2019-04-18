@@ -16,7 +16,6 @@ namespace MultiClientServer
         public StreamWriter Write;
         public int eigenadres;
         public int doeladres;
-        object o = new object();
         // Connection heeft 2 constructoren: deze constructor wordt gebruikt als wij CLIENT worden bij een andere SERVER
         public Connection(int port)
         {
@@ -68,7 +67,6 @@ namespace MultiClientServer
                     // bij de distance wordt 1 opgeteld en daarna wordt de verbinding toegevoegd aan de routing table
                     if (message.StartsWith("NewNode"))
                     {
-                        //Console.WriteLine(message);
                         message = message.Substring(message.IndexOf(" ") + 1);
                         // 0: neighbor, 1: indirect, 2: distance, 3: preferred neighbor
                         string[] newNode = message.Split();
@@ -83,6 +81,11 @@ namespace MultiClientServer
                     else if (message.StartsWith("Test"))
                     {
                         Console.WriteLine("Test terug");
+                    }
+                    else if (message.StartsWith("RemoveNode"))
+                    {
+                        Program.RemoveConnection(int.Parse(message.Split()[1]));
+                        Console.WriteLine(message);
                     }
                     // Is het voor een andere poort, dan gaat hij die proberen door te sturen
                     else
