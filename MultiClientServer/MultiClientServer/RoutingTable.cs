@@ -49,6 +49,7 @@ namespace MultiClientServer
                                 // zo ja, dan wordt de oude verbinding geupdated
                                 ele.Update(node.ReturnDistance());
                                 UpdateNeighbors(poort, node);
+                                Console.WriteLine("Afstand naar " + node.ReturnPoort() + " is nu " + node.ReturnDistance() + " via " + node.ReturnNeighbor());
                             }
                         }
                     }
@@ -183,7 +184,6 @@ namespace MultiClientServer
                 }
             }
         }
-
         // stuurt de node door naar alle directe neighbors, behalve degene die net is toegevoegd
         public void UpdateNeighbors(int poort, Node node)
         {
