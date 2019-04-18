@@ -199,17 +199,21 @@ namespace MultiClientServer
         public void UpdateNeighbors(int poort, Node node)
         {
             Dictionary<int, List<Node>>.KeyCollection keyColl = connections.Keys;
-            foreach (int neighbor in keyColl)
+            try
             {
-                if (neighbor != poort)
+                foreach (int neighbor in keyColl)
                 {
-                    Node directNeighbor = GetNode(neighbor);
-                    if (directNeighbor.ReturnDistance() == 1)
+                    if (neighbor != poort)
                     {
-                        directNeighbor.WriteMessage(neighbor + " NewNode " + eigenpoort + " " + node.ReturnPoort() + " " + node.ReturnDistance() + " " + node.ReturnNeighbor());
+                        Node directNeighbor = GetNode(neighbor);
+                        if (directNeighbor.ReturnDistance() == 1)
+                        {
+                            directNeighbor.WriteMessage(neighbor + " NewNode " + eigenpoort + " " + node.ReturnPoort() + " " + node.ReturnDistance() + " " + node.ReturnNeighbor());
+                        }
                     }
                 }
             }
+            catch { }
         }
 
         // stuurt de hele routing table die op dat moment bestaat naar de andere poort
