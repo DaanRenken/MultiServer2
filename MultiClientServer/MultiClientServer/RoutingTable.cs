@@ -78,13 +78,14 @@ namespace MultiClientServer
                 {
                     lock (locks)
                     {
-                        // als dat niet het geval is, wordt de verbinding aangelegd en worden dictionaries uitgewisseld.
-                        node.AcceptConnection(connection);
                         connections[poort].Add(node);
-                        UpdateNeighbors(poort, node);
-                        node.WriteMessage(poort + " SendAll " + eigenpoort);
-                        node.WriteMessage(eigenpoort + " SendAll " + poort);
                     }
+                    // als dat niet het geval is, wordt de verbinding aangelegd en worden dictionaries uitgewisseld.
+                    node.AcceptConnection(connection);
+
+                    UpdateNeighbors(poort, node);
+                    node.WriteMessage(poort + " SendAll " + eigenpoort);
+                    node.WriteMessage(eigenpoort + " SendAll " + poort);                    
                 }
             }
             else
@@ -95,8 +96,8 @@ namespace MultiClientServer
                 lock (locks)
                 {
                     connections.Add(poort, new List<Node>());
-                    AcceptConnection(poort, node, connection);
                 }
+                AcceptConnection(poort, node, connection);                
             }
         }
 
