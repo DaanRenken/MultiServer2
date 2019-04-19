@@ -31,18 +31,20 @@ namespace MultiClientServer
                 for (int i = 1; i < args.Length; i++)
                 {
                     int newPoort = int.Parse(args[i]);
+                    Node newNode = new Node(newPoort, 1, newPoort);
                     bool connectSucceed = false;
                     while (!connectSucceed)
                     {
-                        System.Threading.Thread.Sleep(50);
                         try
                         {
-                            Node newNode = new Node(newPoort, 1, newPoort);
                             AddConnection(newPoort, newNode);
                             connectSucceed = true;
                             Console.WriteLine("Verbonden: " + newPoort);
                         }
-                        catch { }
+                        catch
+                        {
+                            System.Threading.Thread.Sleep(50);
+                        }
                     }
                 }
             }

@@ -208,34 +208,59 @@ namespace MultiClientServer
         // stuurt de node door naar alle directe neighbors, behalve degene die net is toegevoegd
         public void UpdateNeighbors(int poort, Node node)
         {
-            Dictionary<int, List<Node>>.KeyCollection keyColl = connections.Keys;
-            try
+            int[] connecties = GetConnections();
+            foreach (int neighbor in connecties)
             {
-                foreach (int neighbor in keyColl)
+                bool updateSucceed = false;
+                while (!updateSucceed)
                 {
-                    if (neighbor != poort)
+                    try
                     {
-                        Node directNeighbor = GetNode(neighbor);
-                        if (directNeighbor.ReturnDistance() == 1)
+                        if (neighbor != poort)
                         {
-                            directNeighbor.WriteMessage(neighbor + " NewNode " + eigenpoort + " " + node.ReturnPoort() + " " + node.ReturnDistance() + " " + node.ReturnNeighbor());
+                            Node directNeighbor = GetNode(neighbor);
+                            if (directNeighbor.ReturnDistance() == 1)
+                            {
+                                directNeighbor.WriteMessage(neighbor + " NewNode " + eigenpoort + " " + node.ReturnPoort() + " " + node.ReturnDistance() + " " + node.ReturnNeighbor());
+                            }
+                            updateSucceed = true;
                         }
+                        else
+                        {
+                            updateSucceed = true;
+                        }
+                    }
+                    catch
+                    {
+                        //System.Threading.Thread.Sleep(50);
                     }
                 }
             }
-            catch { }
         }
 
         // stuurt de hele routing table die op dat moment bestaat naar de andere poort
         public void SendAll(int poort)
         {
             Node bestConnection = GetNode(poort);
-            Dictionary<int, List<Node>>.KeyCollection keyColl = connections.Keys;
-            foreach (int neighbor in keyColl)
+            int[] connecties = GetConnections();
+            foreach (int neighbor in connecties)
             {
                 foreach (var ele in connections[neighbor])
                 {
                     bestConnection.WriteMessage(poort + " NewNode " + eigenpoort + " " + ele.ReturnPoort() + " " + ele.ReturnDistance() + " " + ele.ReturnNeighbor());
+                }
+            }
+        }
+
+        public void PrintAll()
+        {
+            int[] connecties = GetConnections();
+            foreach (int i in connecties)
+            {
+                for (int j = 0; j < connections[i].Count(); j++)
+                {
+                    Node temp = connections[i][j];
+                    Console.WriteLine(temp.ReturnPoort() + " " + temp.ReturnDistance() + " " + temp.ReturnNeighbor());
                 }
             }
         }
