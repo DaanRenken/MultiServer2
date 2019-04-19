@@ -99,73 +99,57 @@ namespace MultiClientServer
                 }
             }
         }
-        public void RemoveConnection(int poort)
-        {
-            Node node = GetNode(poort);
-            RemoveConnection(poort, node);
-        }
 
         public void RemoveConnection(int poort, Node node)
         {
-            if (connections[poort].Exists(x => x.ReturnNeighbor() == node.ReturnNeighbor()))
+            Dictionary<int, List<Node>>.KeyCollection keyColl = connections.Keys;
+
+            Node temp = new Node(0,0,0);
+            foreach (int key in keyColl)
             {
-                Dictionary<int, List<Node>>.KeyCollection keyColl = connections.Keys;
-                Node temp = connections[poort].Find(x => x.ReturnNeighbor() == node.ReturnNeighbor());
-                bool removedconnection = false;
-                lock (locks)
+                foreach(Node x in connections[key])
                 {
-                    if (temp.ReturnDistance() == 1)
+                    if (x.ReturnNeighbor() == node.ReturnNeighbor() && x.ReturnPoort() == node.ReturnPoort())
                     {
-                        temp.WriteMessage("RemoveNode " + eigenpoort);
-                    }
-                    connections[poort].Remove(temp);
-                    Console.WriteLine("remove " + temp.ReturnPoort() + " " + temp.ReturnNeighbor());
-                    if (connections[poort].Count == 0)
-                    {
-                        Console.WriteLine("deleted " + poort);
-                        connections.Remove(poort);
-                        removedconnection = true;
-                        foreach (int key in keyColl)
-                        {
-                            temp = GetNode(key);
-                            if (temp.ReturnDistance() == 1)
-                            {
-                                temp.WriteMessage("RemoveNode " + poort);
-                            }
-
-                        }
-                    }
-                }
-                //locks.Remove(poort);
-                List<Node> remove = new List<Node>();
-
-                foreach (int neighbor in keyColl)
-                {
-                    foreach (Node ele in connections[neighbor])
-                    {
-                        
-                        if ((ele.ReturnDistance() >= keyColl.Count || ele.ReturnNeighbor() == poort) && ele.ReturnDistance() > 1)
-                        {
-                            Console.WriteLine(ele.ReturnDistance() + " " + keyColl.Count + " " + ele.ReturnNeighbor() + " " + poort + " " + ele.ReturnPoort());
-                            remove.Add(ele);
-                        }
-                    }
-                    if (neighbor != eigenpoort)
-                    {
-                        //SendMessage(neighbor, "RemoveNode " + poort);
-                    }
-                }
-                lock (locks)
-                {
-                    foreach(Node i in remove)
-                    {
-                        RemoveConnection(i.ReturnPoort(), i);
+                        temp = x;
                     }
                 }
             }
-            else
+            lock (locks)
             {
-                Console.WriteLine("Error: no connection to port {0}", poort);
+                if (temp.ReturnDistance() == 1)
+                {
+                    temp.WriteMessage("RemoveNode " + eigenpoort);
+                }
+                connections[poort].Remove(temp);
+                if (connections[poort].Count == 0)
+                {
+                    connections.Remove(poort);
+                    foreach (int key in keyColl)
+                    {
+                        temp = GetNode(key);
+                        if (temp.ReturnDistance() == 1)
+                        {
+                            temp.WriteMessage("RemoveNode " + poort);
+                        }
+                    }
+                }
+            }
+            List<Node> remove = new List<Node>();
+
+            foreach (int neighbor in keyColl)
+            {
+                foreach (Node ele in connections[neighbor])
+                {                   
+                    if ((ele.ReturnDistance() >= keyColl.Count || ele.ReturnNeighbor() == poort) && ele.ReturnDistance() > 1 && GetNode(ele.ReturnNeighbor()).ReturnDistance() != 1)
+                    {
+                        remove.Add(ele);
+                    }
+                }
+            }
+            foreach(Node i in remove)
+            {
+                RemoveConnection(i.ReturnPoort(), i);
             }
         }
 

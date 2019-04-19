@@ -141,7 +141,7 @@ namespace MultiClientServer
 
         public static void RemoveConnection(int poort)
         {
-            routingtable.RemoveConnection(poort);
+            routingtable.RemoveConnection(poort, new Node(poort, 1, poort));
         }
 
         public static void SendAll(int poort)
