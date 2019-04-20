@@ -25,15 +25,18 @@ namespace MultiClientServer
             // als er al een (indirecte) verbinding is naar de poort, wordt er gekeken om wat voor soort node de toevoeging gaat
             if (connections.ContainsKey(poort))
             {
-                lock (locks)
-                {
+                //lock (locks)
+                //{
                     if (!connections[poort].Exists(x => x.ReturnNeighbor() == node.ReturnNeighbor()))
                     {
                         // als de verbinding via een nieuwe neighbor gaat en een distance van 1 heeft, wordt er een directe verbinding gelegd
                         if (node.ReturnDistance() == 1)
                         {
-                            Console.WriteLine("Creating connection within node");
-                            node.CreateConnection(poort);
+                            lock (locks)
+                            {
+                                Console.WriteLine("Creating connection within node");
+                                node.CreateConnection(poort);
+                            }
                         }
                         // bij een langere distance wordt er een normale, indirecte verbinding gelegd
                         connections[poort].Add(node);
@@ -46,25 +49,28 @@ namespace MultiClientServer
                         {
                             if (node.ReturnNeighbor() == ele.ReturnNeighbor() && node.ReturnDistance() < ele.ReturnDistance())
                             {
-                                // zo ja, dan wordt de oude verbinding geupdated
+                            // zo ja, dan wordt de oude verbinding geupdated
+                            lock (locks)
+                            {
                                 ele.Update(node.ReturnDistance());
-                                UpdateNeighbors(poort, node);
-                                Console.WriteLine("Afstand naar " + node.ReturnPoort() + " is nu " + node.ReturnDistance() + " via " + node.ReturnNeighbor());
+                            }
+                            UpdateNeighbors(poort, node);
+                            Console.WriteLine("Afstand naar " + node.ReturnPoort() + " is nu " + node.ReturnDistance() + " via " + node.ReturnNeighbor());
                             }
                         }
                     }
-                }
+                //}
             }
             // mocht er nog helemaal geen verbinding bestaan, dan wordt er een nieuwe lijst gemaakt en wordt deze toegevoegd
             else
             {
                 object locked = new object();
                 //locks.Add(poort, locked);
-                lock (locks)
-                {
+                //lock (locks)
+                //{
                     connections.Add(poort, new List<Node>());
                     AddConnection(poort, node);
-                }
+                //}
             }
         }
 
@@ -79,9 +85,9 @@ namespace MultiClientServer
                     lock (locks)
                     {
                         connections[poort].Add(node);
+                        node.AcceptConnection(connection);
                     }
                     // als dat niet het geval is, wordt de verbinding aangelegd en worden dictionaries uitgewisseld.
-                    node.AcceptConnection(connection);
 
                     UpdateNeighbors(poort, node);
                     node.WriteMessage(poort + " SendAll " + eigenpoort);
@@ -93,17 +99,18 @@ namespace MultiClientServer
                 // mocht er nog helemaal geen verbinding zijn, dan wordt de poort toegevoegd aan de routing table en begint de accept-loop opnieuw
                 object locked = new object();
                 //locks.Add(poort, locked);
-                lock (locks)
-                {
+                //lock (locks)
+                //{
                     connections.Add(poort, new List<Node>());
-                }
-                AcceptConnection(poort, node, connection);                
+                //}
+                AcceptConnection(poort, node, connection);
             }
         }
 
         public void RemoveConnection(int poort, Node node)
         {
-            Dictionary<int, List<Node>>.KeyCollection keyColl = connections.Keys;
+            int[] keyColl = GetConnections();
+            //Dictionary<int, List<Node>>.KeyCollection keyColl = connections.Keys;
 
             Node temp = new Node(0,0,0);
             foreach (int key in keyColl)
@@ -142,7 +149,7 @@ namespace MultiClientServer
             {
                 foreach (Node ele in connections[neighbor])
                 {                   
-                    if ((ele.ReturnDistance() >= keyColl.Count || ele.ReturnNeighbor() == poort) && ele.ReturnDistance() > 1 && GetNode(ele.ReturnNeighbor()).ReturnDistance() != 1)
+                    if ((ele.ReturnDistance() >= keyColl.Length || ele.ReturnNeighbor() == poort) && ele.ReturnDistance() > 1 && GetNode(ele.ReturnNeighbor()).ReturnDistance() != 1)
                     {
                         remove.Add(ele);
                     }
@@ -156,14 +163,17 @@ namespace MultiClientServer
 
         public Node GetNode(int poort)
         {
-            if (connections.ContainsKey(poort))
+            lock (locks)
             {
-                List<Node> orderedNodes = connections[poort].OrderBy(x => x.ReturnDistance()).ToList();
-                return orderedNodes[0];
-            }
-            else
-            {
-                return null;
+                if (connections.ContainsKey(poort))
+                {
+                    List<Node> orderedNodes = connections[poort].OrderBy(x => x.ReturnDistance()).ToList();
+                    return orderedNodes[0];
+                }
+                else
+                {
+                    return null;
+                }
             }
         }
 
