@@ -218,24 +218,33 @@ namespace MultiClientServer
         // stuurt de node door naar alle directe neighbors, behalve degene die net is toegevoegd
         public void UpdateNeighbors(int poort, Node node)
         {
-            try
+            int[] connecties = GetConnections();
+            foreach (int neighbor in connecties)
             {
-                int[] connecties = GetConnections();
-                foreach (int neighbor in connecties)
+                bool updateSucceed = false;
+                while (!updateSucceed)
                 {
-                    if (neighbor != poort)
+                    try
                     {
-                        Node directNeighbor = GetNode(neighbor);
-                        if (directNeighbor.ReturnDistance() == 1)
+                        if (neighbor != poort)
                         {
-                            directNeighbor.WriteMessage(neighbor + " NewNode " + eigenpoort + " " + node.ReturnPoort() + " " + node.ReturnDistance() + " " + node.ReturnNeighbor());
+                            Node directNeighbor = GetNode(neighbor);
+                            if (directNeighbor.ReturnDistance() == 1)
+                            {
+                                directNeighbor.WriteMessage(neighbor + " NewNode " + eigenpoort + " " + node.ReturnPoort() + " " + node.ReturnDistance() + " " + node.ReturnNeighbor());
+                            }
+                            updateSucceed = true;
+                        }
+                        else
+                        {
+                            updateSucceed = true;
                         }
                     }
+                    catch
+                    {
+                        //System.Threading.Thread.Sleep(50);
+                    }
                 }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
             }
         }
 
